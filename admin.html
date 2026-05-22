@@ -353,6 +353,11 @@ function showDetail(id) {
       <div class="mrow"><span class="mk">🎯 Proyecto (vale 60%)</span><span class="mv">${(r.calificacion_proyecto||0).toFixed(1)} / 10 = ${((r.calificacion_proyecto||0)/10*60).toFixed(1)} pts</span></div>
       <div class="mrow"><span class="mk">✋ Participación (vale 20%)</span><span class="mv">${(r.calificacion_participacion||0).toFixed(1)} / 10 = ${((r.calificacion_participacion||0)/10*20).toFixed(1)} pts</span></div>
       <div class="mrow"><span class="mk">📝 Examen (vale 20%)</span><span class="mv">${(r.examen_nota||0).toFixed(1)} / 10 = ${((r.examen_nota||0)/10*20).toFixed(1)} pts</span></div>
+      <div class="mrow"><span class="mk">¿Cómodo(a) con la cal. en boleta?</span><span class="mv">${{
+        'si':'✅ Sí, la considera justa',
+        'mas-o-menos':'🤔 Más o menos, tiene dudas',
+        'no':'❌ No del todo'
+      }[r.comfort_boleta] || '—'}</span></div>
       ${r.tiene_puntos_extra ? `<div class="mrow"><span class="mk">⭐ Puntos extra</span><span class="mv" style="color:var(--dorado)">+${r.puntos_extra||0}</span></div>` : ''}
       <div class="total-modal-box">
         <span class="tlabel">Calificación Calculada Total</span>
