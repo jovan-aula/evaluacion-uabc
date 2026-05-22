@@ -424,15 +424,6 @@
       <div class="slider-labels"><span>1 — Mínimo</span><span>10 — Máximo</span></div>
     </div>
 
-    <div class="question">
-      <div class="question-text">4. ¿Llegaste puntualmente y mantuviste atención durante las sesiones?</div>
-      <div class="slider-row">
-        <input type="range" min="1" max="10" value="5" class="azul" id="par4" oninput="updateSlider(this,'par4v','azul')"/>
-        <div class="score-badge azul" id="par4v">5</div>
-      </div>
-      <div class="slider-labels"><span>1 — Nunca</span><span>10 — Siempre</span></div>
-    </div>
-
     <div class="prom-bar azul">
       <label class="azul">Promedio auto-evaluado de Participación:</label>
       <span class="prom-val azul" id="prom-participacion">5.0 / 10</span>
@@ -678,7 +669,7 @@ function updateGlobal(el) {
 
 function updateAllSliders() {
   ['p1','p2','p3','p4','p5'].forEach(id => updateSlider(document.getElementById(id), id+'v', ''));
-  ['par1','par2','par3','par4'].forEach(id => updateSlider(document.getElementById(id), id+'v', 'azul'));
+  ['par1','par2','par3'].forEach(id => updateSlider(document.getElementById(id), id+'v', 'azul'));
   updateSlider(document.getElementById('ex1'), 'ex1v', 'morado');
   updateGlobal(document.getElementById('global-slider'));
 }
@@ -687,7 +678,7 @@ function recalcPromedios() {
   const p = ['p1','p2','p3','p4','p5'].map(id=>parseFloat(document.getElementById(id).value));
   document.getElementById('prom-proyecto').textContent = (p.reduce((a,b)=>a+b,0)/p.length).toFixed(1)+' / 10';
 
-  const par = ['par1','par2','par3','par4'].map(id=>parseFloat(document.getElementById(id).value));
+  const par = ['par1','par2','par3'].map(id=>parseFloat(document.getElementById(id).value));
   document.getElementById('prom-participacion').textContent = (par.reduce((a,b)=>a+b,0)/par.length).toFixed(1)+' / 10';
 
   document.getElementById('prom-examen').textContent = document.getElementById('ex1').value+' / 10';
@@ -730,7 +721,7 @@ async function submitForm() {
 
   const p = ['p1','p2','p3','p4','p5'].map(id=>parseFloat(document.getElementById(id).value));
   const promP = p.reduce((a,b)=>a+b,0)/p.length;
-  const par = ['par1','par2','par3','par4'].map(id=>parseFloat(document.getElementById(id).value));
+  const par = ['par1','par2','par3'].map(id=>parseFloat(document.getElementById(id).value));
   const promPar = par.reduce((a,b)=>a+b,0)/par.length;
   const examenNota = parseFloat(document.getElementById('ex1').value);
   const pExtra = tieneExtra ? parseFloat(document.getElementById('puntos-extra').value) : 0;
@@ -754,7 +745,7 @@ async function submitForm() {
     calificacion_proyecto: parseFloat(promP.toFixed(2)),
     justificacion_proyecto: jProyecto,
     par_blackboard: par[0], par_entregas: par[1],
-    par_actividad_clase: par[2], par_puntualidad: par[3],
+    par_actividad_clase: par[2],
     calificacion_participacion: parseFloat(promPar.toFixed(2)),
     justificacion_participacion: jParticipacion,
     examen_nota: examenNota,

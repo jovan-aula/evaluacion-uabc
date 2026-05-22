@@ -386,7 +386,6 @@ function showDetail(id) {
       <div class="mrow"><span class="mk">Actividades en Blackboard</span>${bar(r.par_blackboard||0,10,'var(--azul)')}</div>
       <div class="mrow"><span class="mk">Entregas en clase</span>${bar(r.par_entregas||0,10,'var(--azul)')}</div>
       <div class="mrow"><span class="mk">Participación activa en clase</span>${bar(r.par_actividad_clase||0,10,'var(--azul)')}</div>
-      <div class="mrow"><span class="mk">Puntualidad y atención</span>${bar(r.par_puntualidad||0,10,'var(--azul)')}</div>
       ${r.justificacion_participacion ? `<div class="justif-block"><strong>Justificación del estudiante</strong>${r.justificacion_participacion}</div>` : ''}
     </div>
 
