@@ -819,7 +819,7 @@ async function submitForm() {
     const val = document.getElementById(c.id).value.trim();
     const wc = wordCount(val);
     if (wc < MIN_WORDS) {
-      document.getElementById('error-msg').textContent=\`Escribe al menos 15 palabras en \${c.label} (llevas \${wc}).\`;
+      document.getElementById('error-msg').textContent=`Escribe al menos 15 palabras en ${c.label} (llevas ${wc}).`;
       document.getElementById('error-msg').style.display='block';
       document.getElementById(c.id).scrollIntoView({behavior:'smooth',block:'center'});
       document.getElementById(c.id).focus(); return;
