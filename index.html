@@ -412,8 +412,8 @@
 
     <div class="justificacion-box">
       <label><i data-lucide="edit-3"></i> Justificación — ¿Por qué te asignas esta calificación en el proyecto?</label>
-      <textarea id="j-proyecto" required placeholder="Describe evidencias concretas de tu participación: ¿qué hiciste?, ¿qué aportaste?, ¿en qué fallaste?, ¿qué harías diferente?"></textarea>
-      <div class="justificacion-hint">Esta es la parte más importante. Sé específico(a) y honesto(a).</div>
+      <textarea id="j-proyecto" required oninput="updateWordCount(this,'j-proyecto-wc')" placeholder="Describe evidencias concretas de tu participación: ¿qué hiciste?, ¿qué aportaste?, ¿en qué fallaste?, ¿qué harías diferente?"></textarea>
+      <div class="justificacion-hint" style="display:flex;justify-content:space-between;">Esta es la parte más importante. Sé específico(a) y honesto(a).<span id="j-proyecto-wc" style="font-weight:600;">0 / 15 palabras</span></div>
     </div>
   </div>
 
@@ -461,8 +461,8 @@
 
     <div class="justificacion-box">
       <label><i data-lucide="edit-3"></i> Justificación — ¿Por qué te asignas esta calificación en participación?</label>
-      <textarea id="j-participacion" required placeholder="¿Cuántas actividades entregaste en Blackboard? ¿Participabas en clase? ¿Llegabas a tiempo? Da ejemplos concretos."></textarea>
-      <div class="justificacion-hint">Reflexiona: ¿fuiste el/la estudiante que querías ser este semestre?</div>
+      <textarea id="j-participacion" required oninput="updateWordCount(this,'j-participacion-wc')" placeholder="¿Cuántas actividades entregaste en Blackboard? ¿Participabas en clase? ¿Llegabas a tiempo? Da ejemplos concretos."></textarea>
+      <div class="justificacion-hint" style="display:flex;justify-content:space-between;">Reflexiona: ¿fuiste el/la estudiante que querías ser este semestre?<span id="j-participacion-wc" style="font-weight:600;">0 / 15 palabras</span></div>
     </div>
   </div>
 
@@ -492,8 +492,8 @@
 
     <div class="justificacion-box">
       <label><i data-lucide="edit-3"></i> Justificación — ¿Cómo te preparaste para el examen? ¿Qué resultado obtuviste?</label>
-      <textarea id="j-examen" required placeholder="¿Estudiaste con anticipación? ¿Repasaste el material? ¿Cómo te sentiste durante el examen? ¿Qué habrías hecho diferente?"></textarea>
-      <div class="justificacion-hint">Desde un punto de vista pedagógico, reflexionar sobre tu proceso de estudio es tan valioso como el resultado.</div>
+      <textarea id="j-examen" required oninput="updateWordCount(this,'j-examen-wc')" placeholder="¿Estudiaste con anticipación? ¿Repasaste el material? ¿Cómo te sentiste durante el examen? ¿Qué habrías hecho diferente?"></textarea>
+      <div class="justificacion-hint" style="display:flex;justify-content:space-between;">Reflexionar sobre tu proceso de estudio es tan valioso como el resultado.<span id="j-examen-wc" style="font-weight:600;">0 / 15 palabras</span></div>
     </div>
   </div>
 
@@ -558,8 +558,8 @@
         oninput="updateGlobal(this)"/>
       <div class="global-labels"><span>0</span><span>50</span><span>70</span><span>80</span><span>100</span></div>
       <div class="global-justif">
-        <label><i data-lucide="edit-3"></i> ¿Por qué mereces esa calificación? Argumenta con honestidad.</label>
-        <textarea id="j-global" required placeholder="Reflexiona sobre tu semestre completo: tu compromiso, lo que aprendiste, tus fortalezas y áreas de mejora. ¿Qué te llevas de este curso?"></textarea>
+        <label><i data-lucide="edit-3"></i> ¿Por qué mereces esa calificación? Argumenta con honestidad. <span id="j-global-wc" style="font-size:.78rem;font-weight:600;opacity:.8;">0 / 15 palabras</span></label>
+        <textarea id="j-global" required oninput="updateWordCount(this,'j-global-wc')" placeholder="Reflexiona sobre tu semestre completo: tu compromiso, lo que aprendiste, tus fortalezas y áreas de mejora. ¿Qué te llevas de este curso?"></textarea>
       </div>
     </div>
   </div>
@@ -781,37 +781,41 @@ function showToast(msg, isError=false) {
   setTimeout(()=>t.style.display='none', 4000);
 }
 
+function updateWordCount(el, counterId) {
+  const wc = el.value.trim().split(/\s+/).filter(w=>w.length>0).length;
+  const el2 = document.getElementById(counterId);
+  if (!el2) return;
+  el2.textContent = wc + ' / 15 palabras';
+  el2.style.color = wc >= 15 ? '#1B6B3A' : wc >= 8 ? '#C8920A' : '#e53e3e';
+}
+
 async function submitForm() {
   const nombre = document.getElementById('nombre').value.trim();
   const matricula = document.getElementById('matricula').value.trim();
-  const jProyectoCheck = document.getElementById('j-proyecto').value.trim();
-  const jPartCheck = document.getElementById('j-participacion').value.trim();
-  const jExamenCheck = document.getElementById('j-examen').value.trim();
-  const jGlobalCheck = document.getElementById('j-global').value.trim();
+  const MIN_WORDS = 15;
+  const wordCount = s => s.trim().split(/\s+/).filter(w=>w.length>0).length;
+
+  const checks = [
+    { id: 'j-proyecto',      label: 'la justificación del Proyecto' },
+    { id: 'j-participacion', label: 'la justificación de Participación' },
+    { id: 'j-examen',        label: 'la justificación del Examen' },
+    { id: 'j-global',        label: 'la justificación de tu calificación global' },
+  ];
 
   if (!nombre||!matricula) {
-    document.getElementById('error-msg').textContent='⚠️ Por favor ingresa tu nombre y matrícula.';
+    document.getElementById('error-msg').textContent='Por favor ingresa tu nombre y matrícula.';
     document.getElementById('error-msg').style.display='block'; return;
   }
-  if (!jProyectoCheck) {
-    document.getElementById('error-msg').textContent='⚠️ La justificación del Proyecto es obligatoria.';
-    document.getElementById('error-msg').style.display='block';
-    document.getElementById('j-proyecto').scrollIntoView({behavior:'smooth',block:'center'}); return;
-  }
-  if (!jPartCheck) {
-    document.getElementById('error-msg').textContent='⚠️ La justificación de Participación es obligatoria.';
-    document.getElementById('error-msg').style.display='block';
-    document.getElementById('j-participacion').scrollIntoView({behavior:'smooth',block:'center'}); return;
-  }
-  if (!jExamenCheck) {
-    document.getElementById('error-msg').textContent='⚠️ La justificación del Examen es obligatoria.';
-    document.getElementById('error-msg').style.display='block';
-    document.getElementById('j-examen').scrollIntoView({behavior:'smooth',block:'center'}); return;
-  }
-  if (!jGlobalCheck) {
-    document.getElementById('error-msg').textContent='⚠️ La justificación de tu calificación global es obligatoria.';
-    document.getElementById('error-msg').style.display='block';
-    document.getElementById('j-global').scrollIntoView({behavior:'smooth',block:'center'}); return;
+
+  for (const c of checks) {
+    const val = document.getElementById(c.id).value.trim();
+    const wc = wordCount(val);
+    if (wc < MIN_WORDS) {
+      document.getElementById('error-msg').textContent=\`Escribe al menos 15 palabras en \${c.label} (llevas \${wc}).\`;
+      document.getElementById('error-msg').style.display='block';
+      document.getElementById(c.id).scrollIntoView({behavior:'smooth',block:'center'});
+      document.getElementById(c.id).focus(); return;
+    }
   }
   if (!comfortVal) {
     document.getElementById('error-msg').textContent='⚠️ Por favor responde el indicador de honestidad.';
