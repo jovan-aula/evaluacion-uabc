@@ -107,18 +107,15 @@
 
   input[type="range"] {
     -webkit-appearance: none; width: 100%; height: 6px; border-radius: 4px;
-    background: linear-gradient(to right, var(--verde) 0%, var(--verde) var(--val, 50%), #ddd var(--val, 50%), #ddd 100%);
+    background: linear-gradient(to right, #1B6B3A 0%, #1B6B3A 50%, #ddd 50%, #ddd 100%);
     outline: none; cursor: pointer;
   }
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
     background: var(--verde); border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer;
   }
-  input[type="range"].azul { background: linear-gradient(to right, #2c5282 0%, #2c5282 var(--val, 50%), #ddd var(--val, 50%), #ddd 100%); }
   input[type="range"].azul::-webkit-slider-thumb { background: #2c5282; }
-  input[type="range"].morado { background: linear-gradient(to right, #553c9a 0%, #553c9a var(--val, 50%), #ddd var(--val, 50%), #ddd 100%); }
   input[type="range"].morado::-webkit-slider-thumb { background: #553c9a; }
-  input[type="range"].dorado-r { background: linear-gradient(to right, var(--dorado) 0%, var(--dorado) var(--val, 50%), #ddd var(--val, 50%), #ddd 100%); }
   input[type="range"].dorado-r::-webkit-slider-thumb { background: var(--dorado); }
 
   .score-badge {
@@ -195,7 +192,7 @@
   .global-box p { font-size: .84rem; opacity: .88; margin-bottom: 16px; line-height: 1.5; }
   .global-score-display { font-size: 3rem; font-weight: 700; text-align: center; margin: 8px 0; }
   input[type="range"].global-slider {
-    background: linear-gradient(to right, rgba(255,255,255,.9) 0%, rgba(255,255,255,.9) var(--val, 60%), rgba(255,255,255,.3) var(--val, 60%), rgba(255,255,255,.3) 100%);
+    background: linear-gradient(to right, rgba(255,255,255,.9) 0%, rgba(255,255,255,.9) 70%, rgba(255,255,255,.3) 70%, rgba(255,255,255,.3) 100%);
     height: 8px;
   }
   input[type="range"].global-slider::-webkit-slider-thumb { background: white; width: 24px; height: 24px; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
@@ -715,16 +712,27 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAllSliders();
 });
 
+const COLORS = {
+  '': '#1B6B3A',
+  'azul': '#2c5282',
+  'morado': '#553c9a',
+  'dorado-r': '#C8920A',
+  'global-slider': '#ffffff'
+};
+
 function updateSlider(el, displayId, cls) {
   const val = parseFloat(el.value), min = parseFloat(el.min), max = parseFloat(el.max);
-  el.style.setProperty('--val', ((val-min)/(max-min)*100)+'%');
+  const pct = ((val - min) / (max - min)) * 100;
+  const color = COLORS[cls] || '#1B6B3A';
+  el.style.background = `linear-gradient(to right, ${color} 0%, ${color} ${pct}%, #ddd ${pct}%, #ddd 100%)`;
   document.getElementById(displayId).textContent = val;
   recalcPromedios();
 }
 
 function updateGlobal(el) {
   const val = parseInt(el.value);
-  el.style.setProperty('--val', val+'%');
+  const pct = val;
+  el.style.background = `linear-gradient(to right, rgba(255,255,255,.9) 0%, rgba(255,255,255,.9) ${pct}%, rgba(255,255,255,.3) ${pct}%, rgba(255,255,255,.3) 100%)`;
   document.getElementById('global-display').textContent = val;
 }
 
@@ -871,7 +879,7 @@ async function submitForm() {
     const btn = document.getElementById('submit-btn');
     btn.disabled=true; btn.textContent='Guardando...';
     const { error } = await supabaseClient.from('evaluaciones_diagnosticas').insert([payload]);
-    btn.disabled=false; btn.textContent='<span class="btn-icon"><i data-lucide="send"></i> Enviar Evaluación y Ver Resultados</span>';
+    btn.disabled=false; btn.innerHTML='<span class="btn-icon"><i data-lucide="send"></i> Enviar Evaluación y Ver Resultados</span>'; lucide.createIcons();
     if (error) showToast('Error: '+error.message, true);
     else showToast('✅ Evaluación guardada correctamente.');
   }
@@ -905,9 +913,9 @@ async function submitForm() {
   }
 
   const aEl = document.getElementById('r-asistencia');
-  if (faltasVal===0) { aEl.className='asistencia-result asistencia-ok'; aEl.textContent='<i data-lucide="calendar"></i> Asistencia perfecta — 0 faltas. ¡Excelente!'; }
-  else if (faltasVal<=4) { aEl.className='asistencia-result asistencia-warn'; aEl.textContent=`📅 ${faltasVal} falta(s) — dentro del límite permitido.`; }
-  else { aEl.className='asistencia-result asistencia-bad'; aEl.textContent=`⚠️ ${faltasVal} falta(s) — supera el límite de 4 faltas.`; }
+  if (faltasVal===0) { aEl.className='asistencia-result asistencia-ok'; aEl.textContent='Asistencia perfecta — 0 faltas.'; }
+  else if (faltasVal<=4) { aEl.className='asistencia-result asistencia-warn'; aEl.textContent=`${faltasVal} falta(s) — dentro del límite permitido.`; }
+  else { aEl.className='asistencia-result asistencia-bad'; aEl.textContent=`${faltasVal} falta(s) — supera el límite de 4 faltas.`; }
 
   if (comentarios) {
     document.getElementById('r-comentarios-block').style.display='block';
@@ -918,8 +926,8 @@ async function submitForm() {
   document.getElementById('results').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
 }
-  // Init Lucide icons
-  lucide.createIcons();
+  // Init Lucide icons safely
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 </script>
 </body>
 </html>
