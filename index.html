@@ -4,6 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Evaluación Diagnóstica — UABC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
@@ -17,7 +20,7 @@
     --borde: #d0d0d0;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f0f0; color: var(--texto); font-size: 15px; }
+  body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #f0f0f0; color: var(--texto); font-size: 15px; }
 
   .header {
     background: var(--verde);
@@ -29,6 +32,12 @@
     border-bottom: 5px solid var(--dorado);
   }
   .header img { width: 72px; height: 72px; object-fit: contain; }
+  .section-title svg { width: 17px; height: 17px; stroke-width: 2; flex-shrink: 0; }
+  .badge-icon { display:inline-flex; align-items:center; gap:5px; }
+  .btn-icon { display:inline-flex; align-items:center; gap:6px; justify-content:center; }
+  .justificacion-box label svg { width:15px; height:15px; stroke-width:2; vertical-align:middle; margin-right:3px; }
+  .global-box h3 { display:flex; align-items:center; gap:8px; }
+  .global-box h3 svg { width:18px; height:18px; stroke:white; }
   .header-text h1 { font-size: 1.1rem; font-weight: 700; }
   .header-text p { font-size: .82rem; opacity: .88; margin-top: 2px; }
   .header-badge { margin-left: auto; background: var(--dorado); color: white; font-size: .75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
@@ -314,7 +323,7 @@
       esa justificación es la parte más importante del ejercicio.
     </p>
     <div style="margin-top:12px;background:#fff3cd;border-left:4px solid #C8920A;border-radius:0 6px 6px 0;padding:10px 14px;">
-      <strong style="color:#7a5a00;font-size:.85rem;">📌 Nota importante:</strong>
+      <strong style="color:#7a5a00;font-size:.85rem;">Nota importante:</strong>
       <span style="font-size:.84rem;color:#7a5a00;"> La calificación que aparece aquí es un <strong>parámetro orientador</strong>, no implica que sea la que aparecerá en tu boleta.
       Su propósito es conocer tu percepción honesta sobre tu desempeño. Todos los campos de justificación son <strong>obligatorios</strong>.</span>
     </div>
@@ -324,7 +333,7 @@
 
   <!-- SECCIÓN 1: DATOS -->
   <div class="section">
-    <div class="section-title">📋 Datos del Estudiante</div>
+    <div class="section-title"><i data-lucide="clipboard-list"></i> Datos del Estudiante</div>
     <div class="grid-2">
       <div class="field">
         <label>Nombre completo *</label>
@@ -344,7 +353,7 @@
   <!-- SECCIÓN 2: PROYECTO 60% -->
   <div class="section">
     <div class="section-title">
-      🎯 Proyecto: Marketing Fest &nbsp;<span class="badge">60%</span>
+      <i data-lucide="target"></i> Proyecto: Marketing Fest &nbsp;<span class="badge">60%</span>
     </div>
     <p class="section-subtitle">
       Evalúa tu participación real en el proyecto <strong>Marketing Fest</strong>.
@@ -402,7 +411,7 @@
     </div>
 
     <div class="justificacion-box">
-      <label>✍️ Justificación — ¿Por qué te asignas esta calificación en el proyecto?</label>
+      <label><i data-lucide="edit-3"></i> Justificación — ¿Por qué te asignas esta calificación en el proyecto?</label>
       <textarea id="j-proyecto" required placeholder="Describe evidencias concretas de tu participación: ¿qué hiciste?, ¿qué aportaste?, ¿en qué fallaste?, ¿qué harías diferente?"></textarea>
       <div class="justificacion-hint">Esta es la parte más importante. Sé específico(a) y honesto(a).</div>
     </div>
@@ -411,7 +420,7 @@
   <!-- SECCIÓN 3: PARTICIPACIÓN 20% -->
   <div class="section">
     <div class="section-title">
-      ✋ Participación en Clase &nbsp;<span class="badge azul">20%</span>
+      <i data-lucide="users"></i> Participación en Clase &nbsp;<span class="badge azul">20%</span>
     </div>
     <p class="section-subtitle">
       Evalúa tu participación durante el semestre considerando actividades en Blackboard,
@@ -451,7 +460,7 @@
     </div>
 
     <div class="justificacion-box">
-      <label>✍️ Justificación — ¿Por qué te asignas esta calificación en participación?</label>
+      <label><i data-lucide="edit-3"></i> Justificación — ¿Por qué te asignas esta calificación en participación?</label>
       <textarea id="j-participacion" required placeholder="¿Cuántas actividades entregaste en Blackboard? ¿Participabas en clase? ¿Llegabas a tiempo? Da ejemplos concretos."></textarea>
       <div class="justificacion-hint">Reflexiona: ¿fuiste el/la estudiante que querías ser este semestre?</div>
     </div>
@@ -460,7 +469,7 @@
   <!-- SECCIÓN 4: EXAMEN 20% -->
   <div class="section">
     <div class="section-title">
-      📝 Examen &nbsp;<span class="badge morado">20%</span>
+      <i data-lucide="file-text"></i> Examen &nbsp;<span class="badge morado">20%</span>
     </div>
     <p class="section-subtitle">
       Durante el semestre se aplicó <strong>1 examen</strong>. Reflexiona sobre cómo te preparaste
@@ -482,7 +491,7 @@
     </div>
 
     <div class="justificacion-box">
-      <label>✍️ Justificación — ¿Cómo te preparaste para el examen? ¿Qué resultado obtuviste?</label>
+      <label><i data-lucide="edit-3"></i> Justificación — ¿Cómo te preparaste para el examen? ¿Qué resultado obtuviste?</label>
       <textarea id="j-examen" required placeholder="¿Estudiaste con anticipación? ¿Repasaste el material? ¿Cómo te sentiste durante el examen? ¿Qué habrías hecho diferente?"></textarea>
       <div class="justificacion-hint">Desde un punto de vista pedagógico, reflexionar sobre tu proceso de estudio es tan valioso como el resultado.</div>
     </div>
@@ -491,7 +500,7 @@
   <!-- SECCIÓN 5: ASISTENCIA -->
   <div class="section">
     <div class="section-title">
-      📅 Asistencia &nbsp;<span class="badge dorado">Máx. 4 faltas</span>
+      <i data-lucide="calendar"></i> Asistencia &nbsp;<span class="badge dorado">Máx. 4 faltas</span>
     </div>
     <p class="section-subtitle">Selecciona el número de faltas que tuviste durante el semestre.</p>
     <div class="falta-btn-group" id="falta-group">
@@ -504,13 +513,13 @@
       <button class="falta-btn" onclick="selectFalta(6)">6</button>
       <button class="falta-btn" onclick="selectFalta(7)">7+</button>
     </div>
-    <div class="falta-warning" id="falta-warning">⚠️ Has superado el límite de 4 faltas permitidas.</div>
+    <div class="falta-warning" id="falta-warning"><span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="alert-triangle" style="width:14px;height:14px;"></i> Has superado el límite de 4 faltas permitidas.</span></div>
     <input type="hidden" id="faltas" value="0"/>
   </div>
 
   <!-- SECCIÓN 6: PUNTOS EXTRA -->
   <div class="section">
-    <div class="section-title">⭐ Puntos Extra &nbsp;<span class="badge dorado">Opcional</span></div>
+    <div class="section-title"><i data-lucide="star"></i> Puntos Extra &nbsp;<span class="badge dorado">Opcional</span></div>
     <p class="section-subtitle">¿Realizaste actividades adicionales que merezcas reconocimiento?</p>
     <div class="extra-toggle">
       <button class="toggle-btn" id="btn-si" onclick="toggleExtra('si')">✅ Sí tengo puntos extra</button>
@@ -536,20 +545,20 @@
 
   <!-- SECCIÓN 7: CALIFICACIÓN GLOBAL -->
   <div class="section">
-    <div class="section-title">🏆 Calificación Global Autopercibida</div>
+    <div class="section-title"><i data-lucide="award"></i> Calificación Global Autopercibida</div>
     <p class="section-subtitle">
       Independientemente de los cálculos anteriores: en tu opinión, considerando todo tu desempeño,
       actitud, compromiso y aprendizaje durante el semestre...
     </p>
     <div class="global-box">
-      <h3>¿Qué calificación consideras que mereces en este curso?</h3>
+      <h3><i data-lucide="award"></i> ¿Qué calificación consideras que mereces en este curso?</h3>
       <p>Mueve el control y coloca la nota que sientes que refleja honestamente tu desempeño global.</p>
       <div class="global-score-display" id="global-display">70</div>
       <input type="range" min="0" max="100" value="70" class="global-slider" id="global-slider"
         oninput="updateGlobal(this)"/>
       <div class="global-labels"><span>0</span><span>50</span><span>70</span><span>80</span><span>100</span></div>
       <div class="global-justif">
-        <label>✍️ ¿Por qué mereces esa calificación? Argumenta con honestidad.</label>
+        <label><i data-lucide="edit-3"></i> ¿Por qué mereces esa calificación? Argumenta con honestidad.</label>
         <textarea id="j-global" required placeholder="Reflexiona sobre tu semestre completo: tu compromiso, lo que aprendiste, tus fortalezas y áreas de mejora. ¿Qué te llevas de este curso?"></textarea>
       </div>
     </div>
@@ -557,7 +566,7 @@
 
   <!-- SECCIÓN 7b: COMODIDAD / HONESTIDAD -->
   <div class="section">
-    <div class="section-title">🪞 Indicador de Honestidad</div>
+    <div class="section-title"><i data-lucide="eye"></i> Indicador de Honestidad</div>
     <p class="section-subtitle">
       Esta pregunta no afecta tu calificación. Su propósito es reflexivo.
     </p>
@@ -568,13 +577,13 @@
       </p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;" id="comfort-group">
         <button type="button" class="comfort-btn" id="cb-si" onclick="selectComfort('si')">
-          ✅ Sí, la considero justa
+          Sí, la considero justa
         </button>
         <button type="button" class="comfort-btn" id="cb-mas-o-menos" onclick="selectComfort('mas-o-menos')">
-          🤔 Más o menos, tengo dudas
+          Más o menos, tengo dudas
         </button>
         <button type="button" class="comfort-btn" id="cb-no" onclick="selectComfort('no')">
-          ❌ No del todo
+          No del todo
         </button>
       </div>
       <input type="hidden" id="comfort-val" value=""/>
@@ -584,7 +593,7 @@
 
   <!-- SECCIÓN 8: COMENTARIOS -->
   <div class="section">
-    <div class="section-title">💬 Retroalimentación al Curso</div>
+    <div class="section-title"><i data-lucide="message-square"></i> Retroalimentación al Curso</div>
     <p class="section-subtitle">
       ¿Qué mejorarías del curso? ¿Qué fue lo más valioso? ¿Algún comentario para la docente?
     </p>
@@ -597,7 +606,7 @@
   <div class="section" style="padding:20px 28px;">
     <div id="error-msg" style="color:#e53e3e;font-size:.88rem;margin-bottom:10px;display:none;"></div>
     <button class="submit-btn" id="submit-btn" onclick="submitForm()">
-      Enviar Evaluación y Ver Mis Resultados
+      <span class="btn-icon"><i data-lucide="send"></i> Enviar Evaluación y Ver Resultados</span>
     </button>
     <p style="font-size:.78rem;color:#888;text-align:center;margin-top:8px;">
       Al enviar confirmas que respondiste con honestidad y reflexión genuina.
@@ -622,7 +631,7 @@
       </div>
 
       <div class="grade-row proyecto">
-        <div><div class="grade-label">🎯 Proyecto – Marketing Fest</div><div class="grade-sub">Auto-evaluación · 60%</div></div>
+        <div><div class="grade-label"><span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="target" style="width:15px;height:15px;"></i> Proyecto – Marketing Fest</span></div><div class="grade-sub">Auto-evaluación · 60%</div></div>
         <div><div class="grade-value"><span id="r-proyecto-nota">—</span> / 10</div><div class="grade-sub" style="text-align:right;">= <span id="r-proyecto-pts">—</span> pts</div></div>
       </div>
       <div id="r-j-proyecto-block" class="justif-result" style="display:none;margin-bottom:10px;">
@@ -630,7 +639,7 @@
       </div>
 
       <div class="grade-row participacion">
-        <div><div class="grade-label">✋ Participación en Clase</div><div class="grade-sub">Auto-evaluación · 20%</div></div>
+        <div><div class="grade-label"><i data-lucide="users"></i> Participación en Clase</div><div class="grade-sub">Auto-evaluación · 20%</div></div>
         <div><div class="grade-value"><span id="r-part-nota">—</span> / 10</div><div class="grade-sub" style="text-align:right;">= <span id="r-part-pts">—</span> pts</div></div>
       </div>
       <div id="r-j-part-block" class="justif-result" style="display:none;margin-bottom:10px;">
@@ -638,7 +647,7 @@
       </div>
 
       <div class="grade-row examen">
-        <div><div class="grade-label">📝 Examen</div><div class="grade-sub">Auto-evaluación · 20%</div></div>
+        <div><div class="grade-label"><i data-lucide="file-text"></i> Examen</div><div class="grade-sub">Auto-evaluación · 20%</div></div>
         <div><div class="grade-value"><span id="r-examen-nota">—</span> / 10</div><div class="grade-sub" style="text-align:right;">= <span id="r-examen-pts">—</span> pts</div></div>
       </div>
       <div id="r-j-examen-block" class="justif-result" style="display:none;margin-bottom:10px;">
@@ -646,7 +655,7 @@
       </div>
 
       <div class="grade-row extra" id="r-extra-row" style="display:none;">
-        <div><div class="grade-label">⭐ Puntos Extra</div><div class="grade-sub" id="r-extra-desc">—</div></div>
+        <div><div class="grade-label"><i data-lucide="star"></i> Puntos Extra</div><div class="grade-sub" id="r-extra-desc">—</div></div>
         <div><div class="grade-value">+<span id="r-extra-pts">0</span></div></div>
       </div>
 
@@ -659,7 +668,7 @@
 
       <div class="global-result-box">
         <div>
-          <div class="label">🏆 Calificación que considero que merezco</div>
+          <div class="label"><span style="display:inline-flex;align-items:center;gap:5px;"><i data-lucide="award" style="width:16px;height:16px;stroke:white;"></i> Calificación que considero que merezco</span></div>
           <div style="font-size:.8rem;opacity:.8;margin-top:2px;">Auto-percepción global del curso</div>
         </div>
         <div class="val"><span id="r-global">—</span></div>
@@ -678,14 +687,14 @@
       </div>
 
       <div class="screenshot-hint">
-        <strong>📸 Toma captura de pantalla de esta pantalla</strong>
+        <strong><span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="camera" style="width:16px;height:16px;"></i> Toma captura de pantalla de esta pantalla</span></strong>
         Tu evaluación ha sido registrada. Guarda una imagen como evidencia de tu reflexión.
       </div>
     </div>
 
     <div style="text-align:center;margin-top:-10px;margin-bottom:20px;">
       <button onclick="window.print()" style="padding:10px 28px;border-radius:8px;border:2px solid var(--verde);background:white;color:var(--verde);font-weight:700;cursor:pointer;font-size:.9rem;">
-        🖨️ Imprimir / Guardar como PDF
+        <span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="printer" style="width:15px;height:15px;"></i> Imprimir / Guardar como PDF</span>
       </button>
     </div>
   </div>
@@ -858,7 +867,7 @@ async function submitForm() {
     const btn = document.getElementById('submit-btn');
     btn.disabled=true; btn.textContent='Guardando...';
     const { error } = await supabaseClient.from('evaluaciones_diagnosticas').insert([payload]);
-    btn.disabled=false; btn.textContent='Enviar Evaluación y Ver Mis Resultados';
+    btn.disabled=false; btn.textContent='<span class="btn-icon"><i data-lucide="send"></i> Enviar Evaluación y Ver Resultados</span>';
     if (error) showToast('Error: '+error.message, true);
     else showToast('✅ Evaluación guardada correctamente.');
   }
@@ -876,7 +885,7 @@ async function submitForm() {
   document.getElementById('r-total').textContent = total.toFixed(1);
   document.getElementById('r-global').textContent = globalNota;
 
-  const comfortLabels = {'si':'✅ Sí, la considera justa','mas-o-menos':'🤔 Más o menos, tiene dudas','no':'❌ No del todo'};
+  const comfortLabels = {'si':'✅ Sí, la considera justa','mas-o-menos':'🤔 Más o menos, tiene dudas','no':'No del todo'};
   const rComfort = document.getElementById('r-comfort-val');
   if (rComfort) rComfort.textContent = comfortLabels[comfortVal] || '—';
 
@@ -892,7 +901,7 @@ async function submitForm() {
   }
 
   const aEl = document.getElementById('r-asistencia');
-  if (faltasVal===0) { aEl.className='asistencia-result asistencia-ok'; aEl.textContent='📅 Asistencia perfecta — 0 faltas. ¡Excelente!'; }
+  if (faltasVal===0) { aEl.className='asistencia-result asistencia-ok'; aEl.textContent='<i data-lucide="calendar"></i> Asistencia perfecta — 0 faltas. ¡Excelente!'; }
   else if (faltasVal<=4) { aEl.className='asistencia-result asistencia-warn'; aEl.textContent=`📅 ${faltasVal} falta(s) — dentro del límite permitido.`; }
   else { aEl.className='asistencia-result asistencia-bad'; aEl.textContent=`⚠️ ${faltasVal} falta(s) — supera el límite de 4 faltas.`; }
 
@@ -905,6 +914,8 @@ async function submitForm() {
   document.getElementById('results').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
 }
+  // Init Lucide icons
+  lucide.createIcons();
 </script>
 </body>
 </html>

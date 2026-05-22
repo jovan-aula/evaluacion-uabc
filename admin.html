@@ -4,6 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Panel Docente — UABC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
@@ -14,7 +17,7 @@
     --gris: #f5f5f5; --borde: #d0d0d0;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: "Segoe UI", Arial, sans-serif; background: #f0f0f0; color: #1a1a1a; font-size: 14px; }
+  body { font-family: "Inter", "Segoe UI", Arial, sans-serif; background: #f0f0f0; color: #1a1a1a; font-size: 14px; }
 
   /* LOGIN */
   #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f0f0f0, #e0ede6); }
@@ -34,6 +37,9 @@
   /* HEADER */
   .header { background: var(--verde); color: white; padding: 14px 28px; display: flex; align-items: center; gap: 16px; border-bottom: 4px solid var(--dorado); }
   .header img { width: 52px; }
+  .header-text h1 svg, .btn-outline svg { width:15px; height:15px; vertical-align:middle; margin-right:4px; }
+  th svg { width:13px; height:13px; vertical-align:middle; margin-right:3px; }
+  .msec-title svg { width:13px; height:13px; vertical-align:middle; margin-right:4px; }
   .header-text h1 { font-size: 1rem; font-weight: 700; }
   .header-text p { font-size: .78rem; opacity: .85; }
   .header-actions { margin-left: auto; display: flex; gap: 10px; align-items: center; }
@@ -141,8 +147,8 @@
       <p>Presupuestos para la Mercadotecnia · 2026-1</p>
     </div>
     <div class="header-actions">
-      <button class="btn-outline" onclick="exportCSV()">⬇ Exportar Excel/CSV</button>
-      <button class="btn-outline" onclick="loadData()">↻ Actualizar</button>
+      <button class="btn-outline" onclick="exportCSV()"><i data-lucide="download"></i> Exportar CSV</button>
+      <button class="btn-outline" onclick="loadData()"><i data-lucide="refresh-cw"></i> Actualizar</button>
     </div>
   </div>
 
@@ -156,19 +162,19 @@
       </div>
       <div class="stat-card">
         <div class="val" id="s-prom-proyecto">—</div>
-        <div class="lbl">Prom. Proyecto<br/>(/ 10)</div>
+        <div class="lbl">Promedio Proyecto / 10</div>
       </div>
       <div class="stat-card">
         <div class="val azul" id="s-prom-part">—</div>
-        <div class="lbl">Prom. Participación<br/>(/ 10)</div>
+        <div class="lbl">Promedio Participación / 10</div>
       </div>
       <div class="stat-card">
         <div class="val morado" id="s-prom-examen">—</div>
-        <div class="lbl">Prom. Examen<br/>(/ 10)</div>
+        <div class="lbl">Promedio Examen / 10</div>
       </div>
       <div class="stat-card">
         <div class="val dorado" id="s-prom-global">—</div>
-        <div class="lbl">Prom. Cal. Autopercibida</div>
+        <div class="lbl">Promedio Autopercibida</div>
       </div>
     </div>
 
@@ -201,12 +207,12 @@
             <th>#</th>
             <th>Nombre</th>
             <th>Matrícula</th>
-            <th>🎯 Proyecto</th>
-            <th>✋ Participación</th>
-            <th>📝 Examen</th>
-            <th>⭐ Extra</th>
+            <th><i data-lucide="target"></i> Proyecto</th>
+            <th><i data-lucide="users"></i> Participación</th>
+            <th><i data-lucide="file-text"></i> Examen</th>
+            <th><i data-lucide="star"></i> Extra</th>
             <th>Cal. Calculada</th>
-            <th>🏆 Autopercepción</th>
+            <th><i data-lucide="award"></i> Autopercepción</th>
             <th>Faltas</th>
             <th>Fecha</th>
             <th></th>
@@ -347,10 +353,10 @@ function showDetail(id) {
 
     <!-- RESUMEN CALIFICACIONES -->
     <div class="msec">
-      <div class="msec-title">Resumen de Calificaciones</div>
+      <div class="msec-title"><i data-lucide="bar-chart-2"></i> Resumen de Calificaciones</div>
       <div class="mrow"><span class="mk">🎯 Proyecto (vale 60%)</span><span class="mv">${(r.calificacion_proyecto||0).toFixed(1)} / 10 = ${((r.calificacion_proyecto||0)/10*60).toFixed(1)} pts</span></div>
       <div class="mrow"><span class="mk">✋ Participación (vale 20%)</span><span class="mv">${(r.calificacion_participacion||0).toFixed(1)} / 10 = ${((r.calificacion_participacion||0)/10*20).toFixed(1)} pts</span></div>
-      <div class="mrow"><span class="mk">📝 Examen (vale 20%)</span><span class="mv">${(r.examen_nota||0).toFixed(1)} / 10 = ${((r.examen_nota||0)/10*20).toFixed(1)} pts</span></div>
+      <div class="mrow"><span class="mk"><i data-lucide="file-text"></i> Examen (vale 20%)</span><span class="mv">${(r.examen_nota||0).toFixed(1)} / 10 = ${((r.examen_nota||0)/10*20).toFixed(1)} pts</span></div>
       <div class="mrow"><span class="mk">¿Cómodo(a) con la cal. en boleta?</span><span class="mv">${{
         'si':'✅ Sí, la considera justa',
         'mas-o-menos':'🤔 Más o menos, tiene dudas',
@@ -374,7 +380,7 @@ function showDetail(id) {
 
     <!-- PROYECTO DETALLE -->
     <div class="msec">
-      <div class="msec-title">🎯 Proyecto — Marketing Fest</div>
+      <div class="msec-title"><i data-lucide="target"></i> Proyecto — Marketing Fest</div>
       <div class="mrow"><span class="mk">Involucramiento en planeación/ejecución</span>${bar(r.p_involucramiento||0,10,'var(--verde)')}</div>
       <div class="mrow"><span class="mk">Participación activa en el evento</span>${bar(r.p_participacion||0,10,'var(--verde)')}</div>
       <div class="mrow"><span class="mk">Creatividad e ideas aportadas</span>${bar(r.p_creatividad||0,10,'var(--verde)')}</div>
@@ -385,7 +391,7 @@ function showDetail(id) {
 
     <!-- PARTICIPACIÓN DETALLE -->
     <div class="msec">
-      <div class="msec-title azul">✋ Participación en Clase</div>
+      <div class="msec-title azul"><i data-lucide="users"></i> Participación en Clase</div>
       <div class="mrow"><span class="mk">Actividades en Blackboard</span>${bar(r.par_blackboard||0,10,'var(--azul)')}</div>
       <div class="mrow"><span class="mk">Entregas en clase</span>${bar(r.par_entregas||0,10,'var(--azul)')}</div>
       <div class="mrow"><span class="mk">Participación activa en clase</span>${bar(r.par_actividad_clase||0,10,'var(--azul)')}</div>
@@ -394,14 +400,14 @@ function showDetail(id) {
 
     <!-- EXAMEN DETALLE -->
     <div class="msec">
-      <div class="msec-title morado">📝 Examen</div>
+      <div class="msec-title morado"><i data-lucide="file-text"></i> Examen</div>
       <div class="mrow"><span class="mk">Auto-evaluación del examen</span>${bar(r.examen_nota||0,10,'var(--morado)')}</div>
       ${r.justificacion_examen ? `<div class="justif-block"><strong>Reflexión sobre su preparación y desempeño</strong>${r.justificacion_examen}</div>` : ''}
     </div>
 
     <!-- ASISTENCIA Y EXTRAS -->
     <div class="msec">
-      <div class="msec-title dorado">📅 Asistencia y Extras</div>
+      <div class="msec-title dorado"><i data-lucide="calendar"></i> Asistencia y Extras</div>
       <div class="mrow"><span class="mk">Faltas reportadas</span><span class="mv">${fText}</span></div>
       ${r.tiene_puntos_extra ? `
         <div class="mrow"><span class="mk">Puntos extra solicitados</span><span class="mv" style="color:var(--dorado)">+${r.puntos_extra||0}</span></div>
@@ -412,12 +418,13 @@ function showDetail(id) {
     <!-- RETROALIMENTACIÓN -->
     ${r.comentarios ? `
     <div class="msec">
-      <div class="msec-title">💬 Retroalimentación al Curso</div>
+      <div class="msec-title"><i data-lucide="message-square"></i> Retroalimentación</div>
       <div style="background:#f5f5f5;border-radius:6px;padding:10px 12px;font-size:.85rem;color:#444;line-height:1.55;">${r.comentarios}</div>
     </div>` : ''}
 
   `;
   document.getElementById('modal-overlay').classList.add('open');
+  lucide.createIcons();
 }
 
 function closeModal() {
@@ -464,6 +471,8 @@ function exportCSV() {
   const a = document.createElement('a');
   a.href = url; a.download = `evaluaciones_diagnosticas_2026-1_${new Date().toISOString().slice(0,10)}.csv`;
   a.click(); URL.revokeObjectURL(url);
+}
+  lucide.createIcons();
 }
 </script>
 </body>
