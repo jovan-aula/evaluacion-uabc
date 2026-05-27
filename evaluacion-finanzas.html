@@ -666,7 +666,7 @@
       </div>
       <div class="parcial1-result no-exento" id="parcial1-result-noexento" style="display:none">
         <i data-lucide="alert-circle"></i>
-        <div>No presentado — Este componente pesa <strong>20%</strong> con calificación 0. Tu máximo posible es 9.5/10.</div>
+        <div>No te preocupes — ya que el grupo estuvo exento, este componente vale <strong>20%</strong>. Tu máximo posible es <strong>9.5/10</strong> + puntos extra.</div>
       </div>
     </div>
 
@@ -798,6 +798,10 @@
           <div class="grade-row">
             <span>Participación (20%)</span>
             <span id="gb-participacion">—</span>
+          </div>
+          <div class="grade-row" id="gb-extra-row" style="display:none">
+            <span>Puntos Extra</span>
+            <span id="gb-extra">—</span>
           </div>
           <div class="grade-row" style="margin-top:6px;padding-top:8px;border-top:1px solid rgba(255,255,255,.3);">
             <span>Total estimado</span>
@@ -1126,14 +1130,23 @@ function updateFinalGrade() {
   const extraVal   = tieneExtra === true ? parseFloat(document.getElementById('extra-puntos').value || 0) : 0;
   const extraBonus = tieneExtra === true ? (extraVal / 10) : 0;
 
-  // Update labels
+  // Update labels — show nota (puntaje) format
   const p1Label = document.getElementById('gb-parcial1-label');
   if (p1Label) p1Label.textContent = parcial1 === false ? 'Examen Parcial 1 (20%)' : 'Examen Parcial 1 (25%)';
-  document.getElementById('gb-parcial1').textContent      = parcial1Nota !== null ? (parcial1 ? '10.0 ✓' : '0.0') : '—';
+  document.getElementById('gb-parcial1').textContent      = parcial1Nota !== null ? (parcial1 ? '10.0' : '0.0') : '—';
   document.getElementById('gb-examen').textContent        = examP2Nota  !== null ? examP2Nota.toFixed(1) : '—';
   document.getElementById('gb-proyecto').textContent      = proyNota.toFixed(1);
   document.getElementById('gb-participacion').textContent = partNota.toFixed(1);
   document.getElementById('prom-proyecto').textContent    = proyNota.toFixed(1);
+
+  // Puntos extra row
+  const extraRow = document.getElementById('gb-extra-row');
+  if (tieneExtra === true && extraVal > 0) {
+    extraRow.style.display = 'flex';
+    document.getElementById('gb-extra').textContent = '+' + extraBonus.toFixed(2);
+  } else {
+    extraRow.style.display = 'none';
+  }
 
   if (parcial1Nota === null || examP2Nota === null) {
     document.getElementById('final-grade-num').textContent = '—';
@@ -1145,7 +1158,24 @@ function updateFinalGrade() {
   const total = parseFloat(Math.min(10, base + extraBonus).toFixed(1));
   const maxPos = parcial1 ? '10.0' : '9.5';
   document.getElementById('final-grade-num').textContent = total.toFixed(1);
+
+  // Breakdown detail line
+  const p1contrib   = (parcial1Nota * parcial1Peso).toFixed(2);
+  const p2contrib   = (examP2Nota * 0.25).toFixed(2);
+  const proyContrib = (proyNota * 0.30).toFixed(2);
+  const partContrib = (partNota * 0.20).toFixed(2);
+  const extraStr    = extraBonus > 0 ? ' + ' + extraBonus.toFixed(2) + ' extra' : '';
   document.getElementById('gb-total').textContent = total.toFixed(1) + ' / ' + maxPos;
+
+  // Show weighted detail in subtitle
+  let detailEl = document.getElementById('grade-detail-line');
+  if (!detailEl) {
+    detailEl = document.createElement('p');
+    detailEl.id = 'grade-detail-line';
+    detailEl.style.cssText = 'font-size:.72rem;opacity:.7;margin-top:8px;line-height:1.6;';
+    document.getElementById('final-grade-box').appendChild(detailEl);
+  }
+  detailEl.textContent = p1contrib + ' + ' + p2contrib + ' + ' + proyContrib + ' + ' + partContrib + extraStr + ' = ' + total.toFixed(2);
 }
 
 // ===================== SUBMIT DIAGNOSTIC =====================
