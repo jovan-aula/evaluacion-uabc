@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Evaluación Diagnóstica — Presupuestos para la Mercadotecnia · UABC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --verde: #1B6B3A;
+    --verde-oscuro: #134d2a;
+    --verde-claro: #e8f5ee;
+    --dorado: #C8920A;
+    --dorado-claro: #fff8e1;
+    --azul: #2c5282;
+    --azul-claro: #e8f0fe;
+    --morado: #553c9a;
+    --morado-claro: #f0ebff;
+    --rojo: #e53e3e;
+    --gris: #f5f5f5;
+    --texto: #1a1a1a;
+    --borde: #d0d0d0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #f0f0f0; color: var(--texto); font-size: 15px; }
+
+  /* HEADER */
+  .header {
+    background: var(--verde);
+    color: white;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 5px solid var(--dorado);
+  }
+  .header-text h1 { font-size: 1.1rem; font-weight: 700; }
+  .header-text p { font-size: .82rem; opacity: .88; margin-top: 2px; }
+  .header-badge { margin-left: auto; background: var(--dorado); color: white; font-size: .75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+
+  .container { max-width: 860px; margin: 32px auto; padding: 0 16px 80px; }
+
+  /* FASE STEPPER */
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 28px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+  .step {
+    flex: 1;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: .88rem;
+    font-weight: 600;
+    color: #888;
+    border-right: 1px solid var(--borde);
+    transition: all .3s;
+  }
+  .step:last-child { border-right: none; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--borde); color: #888;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 700; flex-shrink: 0; transition: all .3s;
+  }
+  .step.active { color: var(--verde-oscuro); background: var(--verde-claro); }
+  .step.active .step-num { background: var(--verde); color: white; }
+  .step.done { color: var(--verde-oscuro); }
+  .step.done .step-num { background: var(--verde); color: white; }
+
+  /* CARDS */
+  .intro-box {
+    background: white;
+    border-left: 5px solid var(--verde);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 28px;
+    line-height: 1.6;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+  .intro-box h2 { color: var(--verde-oscuro); font-size: 1rem; margin-bottom: 6px; }
+  .intro-box p { font-size: .88rem; color: #444; }
+
+  .section {
+    background: white;
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 22px;
+    box-shadow: 0 1px 5px rgba(0,0,0,.09);
+  }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--verde-oscuro);
+    margin-bottom: 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--verde-claro);
+  }
+  .section-title svg { width: 17px; height: 17px; stroke-width: 2; flex-shrink: 0; }
+  .section-subtitle { font-size: .83rem; color: #666; margin-bottom: 18px; line-height: 1.5; }
+
+  .badge { background: var(--verde); color: white; border-radius: 20px; font-size: .73rem; padding: 2px 10px; font-weight: 600; }
+  .badge.dorado { background: var(--dorado); }
+  .badge.azul { background: var(--azul); }
+  .badge.morado { background: var(--morado); }
+  .badge.rojo { background: var(--rojo); }
+
+  /* FIELDS */
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: .88rem; font-weight: 600; color: #333; margin-bottom: 5px; }
+  .field input[type="text"], .field input[type="number"], .field select, .field textarea {
+    width: 100%; border: 1.5px solid var(--borde); border-radius: 6px; padding: 9px 12px;
+    font-size: .9rem; transition: border-color .2s; font-family: inherit; background: #fafafa;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--verde); background: white; }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* EXAM QUESTIONS */
+  .question-card {
+    background: var(--gris);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    border: 2px solid transparent;
+    transition: border-color .2s;
+  }
+  .question-card.answered { border-color: var(--verde); }
+  .question-card.correct { background: #e8f5ee; border-color: var(--verde); }
+  .question-card.incorrect { background: #fff5f5; border-color: var(--rojo); }
+  .question-num {
+    display: inline-block;
+    background: var(--verde);
+    color: white;
+    font-size: .72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .question-num.extra { background: var(--dorado); }
+  .question-text { font-size: .9rem; font-weight: 600; color: #222; margin-bottom: 14px; line-height: 1.5; }
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .option-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: white;
+    border: 2px solid var(--borde);
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: .85rem;
+    line-height: 1.4;
+    transition: all .2s;
+  }
+  .option-label:hover { border-color: var(--verde); background: var(--verde-claro); }
+  .option-label input[type="radio"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--verde); }
+  .option-label.selected { border-color: var(--verde); background: var(--verde-claro); }
+  .option-label.correct-opt { border-color: var(--verde); background: #c6f6d5; font-weight: 600; }
+  .option-label.wrong-opt { border-color: var(--rojo); background: #fff5f5; }
+  .option-label.reveal-correct { border-color: var(--verde); background: #c6f6d5; }
+
+  /* Result badge per question */
+  .q-result {
+    display: none;
+    margin-top: 10px;
+    font-size: .82rem;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+  .q-result.ok { display: block; color: #276749; background: #c6f6d5; }
+  .q-result.fail { display: block; color: #c53030; background: #fed7d7; }
+
+  /* EXTRA QUESTION */
+  .extra-box {
+    background: var(--dorado-claro);
+    border: 2px solid var(--dorado);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .extra-box .question-text { color: #5a3e00; }
+
+  /* EXAM RESULT PANEL */
+  .exam-result-panel {
+    display: none;
+    background: linear-gradient(135deg, #1B6B3A 0%, #2d8a55 100%);
+    border-radius: 12px;
+    padding: 24px 28px;
+    color: white;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+  .exam-result-panel.visible { display: block; }
+  .exam-result-panel h3 { font-size: 1.1rem; margin-bottom: 8px; }
+  .exam-score-big { font-size: 3.5rem; font-weight: 700; line-height: 1; margin: 8px 0; }
+  .exam-score-sub { font-size: .88rem; opacity: .9; margin-bottom: 16px; }
+  .score-pills { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  .score-pill {
+    background: rgba(255,255,255,.2);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: .83rem;
+    font-weight: 600;
+  }
+  .score-pill.good { background: rgba(198,246,213,.3); }
+  .score-pill.bad { background: rgba(254,215,215,.3); }
+  .continue-btn {
+    margin-top: 18px;
+    background: white;
+    color: var(--verde-oscuro);
+    border: none;
+    border-radius: 8px;
+    padding: 11px 28px;
+    font-size: .95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .continue-btn:hover { background: var(--verde-claro); }
+
+  /* DIAGNOSTIC FORM */
+  .diag-section { display: none; }
+  .diag-section.visible { display: block; }
+
+  /* SLIDER */
+  .slider-row { display: flex; align-items: center; gap: 12px; }
+  .slider-labels { display: flex; justify-content: space-between; font-size: .72rem; color: #888; margin-top: 4px; }
+  input[type="range"] {
+    -webkit-appearance: none; width: 100%; height: 6px; border-radius: 4px;
+    background: linear-gradient(to right, #1B6B3A 0%, #1B6B3A 50%, #ddd 50%, #ddd 100%);
+    outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--verde); border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer;
+  }
+  input[type="range"].azul-r { background: linear-gradient(to right, #2c5282 0%, #2c5282 50%, #ddd 50%, #ddd 100%); }
+  input[type="range"].azul-r::-webkit-slider-thumb { background: var(--azul); }
+  input[type="range"].morado-r { background: linear-gradient(to right, #553c9a 0%, #553c9a 50%, #ddd 50%, #ddd 100%); }
+  input[type="range"].morado-r::-webkit-slider-thumb { background: var(--morado); }
+  input[type="range"].dorado-r { background: linear-gradient(to right, #C8920A 0%, #C8920A 50%, #ddd 50%, #ddd 100%); }
+  input[type="range"].dorado-r::-webkit-slider-thumb { background: var(--dorado); }
+  .score-badge {
+    min-width: 42px; text-align: center; font-weight: 700; font-size: 1.1rem;
+    color: var(--verde-oscuro); background: white; border: 2px solid var(--verde); border-radius: 6px; padding: 2px 6px;
+  }
+  .score-badge.azul { color: var(--azul); border-color: var(--azul); }
+  .score-badge.morado { color: var(--morado); border-color: var(--morado); }
+  .score-badge.dorado-r { color: var(--dorado); border-color: var(--dorado); }
+
+  .prom-bar {
+    border-radius: 8px; padding: 12px 16px; margin-top: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .prom-bar.verde { background: var(--verde-claro); }
+  .prom-bar.azul { background: var(--azul-claro); }
+  .prom-bar.morado { background: var(--morado-claro); }
+  .prom-bar.dorado { background: var(--dorado-claro); }
+  .prom-bar label { font-size: .88rem; font-weight: 600; }
+  .prom-val { font-size: 1.4rem; font-weight: 700; }
+  .prom-val.verde { color: var(--verde-oscuro); }
+  .prom-val.azul { color: #1a3a7c; }
+  .prom-val.morado { color: #3d2777; }
+  .prom-val.dorado { color: #7a5a00; }
+
+  .justificacion-box {
+    margin-top: 14px; padding: 14px 16px;
+    background: var(--dorado-claro);
+    border-left: 4px solid var(--dorado); border-radius: 0 8px 8px 0;
+  }
+  .justificacion-box label { font-size: .85rem; font-weight: 700; color: #7a5a00; display: block; margin-bottom: 6px; }
+  .justificacion-box textarea {
+    width: 100%; border: 1.5px solid #f0c040; border-radius: 6px; padding: 9px 12px;
+    font-size: .88rem; font-family: inherit; background: white; resize: vertical; min-height: 75px;
+  }
+  .justificacion-box textarea:focus { outline: none; border-color: var(--dorado); }
+  .justificacion-hint { font-size: .78rem; color: #a07000; margin-top: 4px; }
+
+  /* TOGGLE BUTTONS */
+  .toggle-group { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .toggle-btn {
+    padding: 9px 22px; border-radius: 8px; border: 2px solid var(--borde);
+    background: white; cursor: pointer; font-weight: 600; font-size: .88rem;
+    transition: all .2s; display: flex; align-items: center; gap: 6px;
+  }
+  .toggle-btn:hover { border-color: var(--verde); }
+  .toggle-btn.active-si { background: var(--verde); color: white; border-color: var(--verde); }
+  .toggle-btn.active-no { background: var(--rojo); color: white; border-color: var(--rojo); }
+
+  /* PARCIAL 1 RESULT */
+  .parcial1-result {
+    display: none;
+    border-radius: 8px; padding: 12px 16px; margin-top: 12px;
+    font-size: .9rem; font-weight: 600;
+  }
+  .parcial1-result.exento { display: flex; background: var(--verde-claro); color: var(--verde-oscuro); align-items: center; gap: 8px; }
+  .parcial1-result.no-exento { display: flex; background: #fff5f5; color: #c53030; align-items: center; gap: 8px; }
+
+  /* LOCKED FIELD */
+  .locked-field {
+    background: var(--verde-claro);
+    border: 2px solid var(--verde);
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .locked-field-label { font-size: .88rem; color: var(--verde-oscuro); font-weight: 600; }
+  .locked-field-score { font-size: 1.6rem; font-weight: 700; color: var(--verde-oscuro); }
+
+  /* FINAL GRADE BOX */
+  .final-grade-box {
+    background: linear-gradient(135deg, #1B6B3A 0%, #2d8a55 100%);
+    border-radius: 12px; padding: 24px 28px; color: white; margin-bottom: 22px;
+  }
+  .final-grade-box h3 { font-size: 1rem; margin-bottom: 4px; opacity: .9; }
+  .final-grade-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; flex-wrap: wrap; gap: 16px; }
+  .final-grade-num { font-size: 4rem; font-weight: 700; line-height: 1; }
+  .grade-breakdown { display: grid; gap: 6px; flex: 1; max-width: 380px; }
+  .grade-row { display: flex; justify-content: space-between; font-size: .82rem; opacity: .9; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,.15); }
+  .grade-row:last-child { border-bottom: none; font-weight: 700; opacity: 1; font-size: .9rem; }
+  .grade-row span:last-child { font-weight: 700; }
+
+  /* SUBMIT BUTTON */
+  .submit-btn {
+    width: 100%; background: var(--verde); color: white; border: none;
+    border-radius: 10px; padding: 16px; font-size: 1.05rem; font-weight: 700;
+    cursor: pointer; transition: all .2s; display: flex; align-items: center;
+    justify-content: center; gap: 10px; box-shadow: 0 4px 14px rgba(27,107,58,.3);
+  }
+  .submit-btn:hover:not(:disabled) { background: var(--verde-oscuro); transform: translateY(-1px); }
+  .submit-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+  /* SUBMIT EXAM BUTTON */
+  .submit-exam-btn {
+    width: 100%; background: var(--azul); color: white; border: none;
+    border-radius: 10px; padding: 14px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all .2s; display: flex; align-items: center;
+    justify-content: center; gap: 10px; margin-top: 8px;
+  }
+  .submit-exam-btn:hover:not(:disabled) { background: #1a3a7c; }
+  .submit-exam-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* SUCCESS SCREEN */
+  .success-screen {
+    display: none; text-align: center; padding: 60px 20px;
+    background: white; border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  }
+  .success-screen.visible { display: block; }
+  .success-icon { font-size: 4rem; margin-bottom: 16px; }
+  .success-screen h2 { color: var(--verde-oscuro); font-size: 1.4rem; margin-bottom: 8px; }
+  .success-screen p { color: #666; font-size: .9rem; line-height: 1.6; }
+
+  /* PROGRESS */
+  .progress-note {
+    font-size: .78rem; color: #888; text-align: center; margin-top: 8px;
+  }
+
+  /* SUB-SLIDERS */
+  .sub-slider-box {
+    background: var(--gris); border-radius: 8px; padding: 14px 16px; margin-bottom: 10px;
+  }
+  .sub-slider-label { font-size: .85rem; font-weight: 600; color: #444; margin-bottom: 8px; }
+
+  @media (max-width: 600px) {
+    .options { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .final-grade-row { flex-direction: column; }
+    .header { padding: 14px 16px; }
+    .section { padding: 18px 16px; }
+    .stepper { flex-direction: column; }
+    .step { border-right: none; border-bottom: 1px solid var(--borde); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-text">
+    <h1>Evaluación Diagnóstica de Cierre — Presupuestos para la Mercadotecnia</h1>
+    <p>Universidad Autónoma de Baja California · 5to Semestre · Prof. Jován Naranjo</p>
+  </div>
+  <div class="header-badge">Finanzas · 5to Sem</div>
+</div>
+
+<div class="container">
+
+  <!-- STEPPER -->
+  <div class="stepper" id="stepper">
+    <div class="step active" id="step1">
+      <div class="step-num">1</div>
+      <span>Examen Diagnóstico</span>
+    </div>
+    <div class="step" id="step2">
+      <div class="step-num">2</div>
+      <span>Autoevaluación</span>
+    </div>
+  </div>
+
+  <!-- ==================== FASE 1: EXAMEN ==================== -->
+  <div id="fase-examen">
+
+    <div class="intro-box">
+      <h2>Fase 1 — Examen Diagnóstico de Presupuestos</h2>
+      <p>Responde con honestidad cada pregunta. El examen se calificará automáticamente al enviar. Los resultados
+      pasarán directo a tu evaluación diagnóstica. <strong>Lee bien antes de responder.</strong></p>
+    </div>
+
+    <!-- Datos -->
+    <div class="section">
+      <div class="section-title"><i data-lucide="clipboard-list"></i> Tus Datos</div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Nombre completo</label>
+          <input type="text" id="nombre" placeholder="Apellidos, Nombre" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label>Matrícula</label>
+          <input type="text" id="matricula" placeholder="Ej. L20XXXXX" autocomplete="off"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preguntas MCQ -->
+    <div class="section">
+      <div class="section-title"><i data-lucide="file-question"></i> Preguntas &nbsp;<span class="badge azul">12 reactivos</span></div>
+      <p class="section-subtitle">Selecciona la respuesta que consideres correcta. Cada pregunta vale 1 punto.</p>
+
+      <!-- P1 -->
+      <div class="question-card" id="qcard-1">
+        <div class="question-num">Pregunta 1</div>
+        <p class="question-text">Una agencia invierte $60,000 al 8% anual de interés simple durante 4 años. ¿Cuál es el monto total acumulado?</p>
+        <div class="options">
+          <label class="option-label" id="q1-a"><input type="radio" name="q1" value="a" onchange="markAnswered(1)"> a) $67,200</label>
+          <label class="option-label" id="q1-b"><input type="radio" name="q1" value="b" onchange="markAnswered(1)"> b) $81,632</label>
+          <label class="option-label" id="q1-c"><input type="radio" name="q1" value="c" onchange="markAnswered(1)"> c) $79,200</label>
+          <label class="option-label" id="q1-d"><input type="radio" name="q1" value="d" onchange="markAnswered(1)"> d) $84,000</label>
+        </div>
+        <div class="q-result" id="qr-1"></div>
+      </div>
+
+      <!-- P2 -->
+      <div class="question-card" id="qcard-2">
+        <div class="question-num">Pregunta 2</div>
+        <p class="question-text">¿Cuál es la fórmula correcta del interés simple?</p>
+        <div class="options">
+          <label class="option-label" id="q2-a"><input type="radio" name="q2" value="a" onchange="markAnswered(2)"> a) VF = C(1 + i)<sup>n</sup></label>
+          <label class="option-label" id="q2-b"><input type="radio" name="q2" value="b" onchange="markAnswered(2)"> b) VF = C(1 + i·n)</label>
+          <label class="option-label" id="q2-c"><input type="radio" name="q2" value="c" onchange="markAnswered(2)"> c) VF = C / (1+i)<sup>n</sup></label>
+          <label class="option-label" id="q2-d"><input type="radio" name="q2" value="d" onchange="markAnswered(2)"> d) VF = C × i<sup>n</sup></label>
+        </div>
+        <div class="q-result" id="qr-2"></div>
+      </div>
+
+      <!-- P3 -->
+      <div class="question-card" id="qcard-3">
+        <div class="question-num">Pregunta 3</div>
+        <p class="question-text">$50,000 se invierten al 10% anual compuesto durante 3 años. ¿Cuánto se acumula?</p>
+        <div class="options">
+          <label class="option-label" id="q3-a"><input type="radio" name="q3" value="a" onchange="markAnswered(3)"> a) $65,000</label>
+          <label class="option-label" id="q3-b"><input type="radio" name="q3" value="b" onchange="markAnswered(3)"> b) $66,500</label>
+          <label class="option-label" id="q3-c"><input type="radio" name="q3" value="c" onchange="markAnswered(3)"> c) $66,550</label>
+          <label class="option-label" id="q3-d"><input type="radio" name="q3" value="d" onchange="markAnswered(3)"> d) $60,500</label>
+        </div>
+        <div class="q-result" id="qr-3"></div>
+      </div>
+
+      <!-- P4 -->
+      <div class="question-card" id="qcard-4">
+        <div class="question-num">Pregunta 4</div>
+        <p class="question-text">¿Qué diferencia existe entre el interés simple y el interés compuesto?</p>
+        <div class="options">
+          <label class="option-label" id="q4-a"><input type="radio" name="q4" value="a" onchange="markAnswered(4)"> a) En el simple los intereses se suman al capital y generan nuevos intereses</label>
+          <label class="option-label" id="q4-b"><input type="radio" name="q4" value="b" onchange="markAnswered(4)"> b) En el compuesto los intereses se suman al capital y generan nuevos intereses</label>
+          <label class="option-label" id="q4-c"><input type="radio" name="q4" value="c" onchange="markAnswered(4)"> c) Ambos producen el mismo monto si la tasa es igual</label>
+          <label class="option-label" id="q4-d"><input type="radio" name="q4" value="d" onchange="markAnswered(4)"> d) El simple siempre genera mayor rendimiento</label>
+        </div>
+        <div class="q-result" id="qr-4"></div>
+      </div>
+
+      <!-- P5 -->
+      <div class="question-card" id="qcard-5">
+        <div class="question-num">Pregunta 5</div>
+        <p class="question-text">Una empresa recibirá $400,000 en 3 años. La tasa de descuento es 12% anual compuesto. ¿Cuál es el valor presente?</p>
+        <div class="options">
+          <label class="option-label" id="q5-a"><input type="radio" name="q5" value="a" onchange="markAnswered(5)"> a) $320,000</label>
+          <label class="option-label" id="q5-b"><input type="radio" name="q5" value="b" onchange="markAnswered(5)"> b) $296,000</label>
+          <label class="option-label" id="q5-c"><input type="radio" name="q5" value="c" onchange="markAnswered(5)"> c) $284,714</label>
+          <label class="option-label" id="q5-d"><input type="radio" name="q5" value="d" onchange="markAnswered(5)"> d) $355,555</label>
+        </div>
+        <div class="q-result" id="qr-5"></div>
+      </div>
+
+      <!-- P6 -->
+      <div class="question-card" id="qcard-6">
+        <div class="question-num">Pregunta 6</div>
+        <p class="question-text">Un cliente ofrece pagar $180,000 hoy ó $220,000 en 2 años. La tasa de oportunidad es 10% anual compuesto. ¿Qué conviene financieramente?</p>
+        <div class="options">
+          <label class="option-label" id="q6-a"><input type="radio" name="q6" value="a" onchange="markAnswered(6)"> a) Los $220,000 porque es mayor cantidad</label>
+          <label class="option-label" id="q6-b"><input type="radio" name="q6" value="b" onchange="markAnswered(6)"> b) Los $180,000 hoy; el VP de $220,000 a 2 años es ≈ $181,818</label>
+          <label class="option-label" id="q6-c"><input type="radio" name="q6" value="c" onchange="markAnswered(6)"> c) Son equivalentes financieramente</label>
+          <label class="option-label" id="q6-d"><input type="radio" name="q6" value="d" onchange="markAnswered(6)"> d) Los $220,000 porque la inflación licúa el dinero presente</label>
+        </div>
+        <div class="q-result" id="qr-6"></div>
+      </div>
+
+      <!-- P7 -->
+      <div class="question-card" id="qcard-7">
+        <div class="question-num">Pregunta 7</div>
+        <p class="question-text">¿Para qué le sirve el valor futuro a un director de marketing al planear inversiones?</p>
+        <div class="options">
+          <label class="option-label" id="q7-a"><input type="radio" name="q7" value="a" onchange="markAnswered(7)"> a) Para calcular el costo actual de una campaña</label>
+          <label class="option-label" id="q7-b"><input type="radio" name="q7" value="b" onchange="markAnswered(7)"> b) Para proyectar cuánto valdrá una inversión en el futuro y evaluar si el rendimiento justifica el gasto</label>
+          <label class="option-label" id="q7-c"><input type="radio" name="q7" value="c" onchange="markAnswered(7)"> c) Para determinar el precio de venta de un producto</label>
+          <label class="option-label" id="q7-d"><input type="radio" name="q7" value="d" onchange="markAnswered(7)"> d) Solo lo usa el área de contabilidad</label>
+        </div>
+        <div class="q-result" id="qr-7"></div>
+      </div>
+
+      <!-- P8 -->
+      <div class="question-card" id="qcard-8">
+        <div class="question-num">Pregunta 8</div>
+        <p class="question-text">Si tienes $50,000 hoy y los inviertes al 12% anual compuesto, ¿cuánto tendrás en 2 años?</p>
+        <div class="options">
+          <label class="option-label" id="q8-a"><input type="radio" name="q8" value="a" onchange="markAnswered(8)"> a) $56,000</label>
+          <label class="option-label" id="q8-b"><input type="radio" name="q8" value="b" onchange="markAnswered(8)"> b) $62,000</label>
+          <label class="option-label" id="q8-c"><input type="radio" name="q8" value="c" onchange="markAnswered(8)"> c) $62,720</label>
+          <label class="option-label" id="q8-d"><input type="radio" name="q8" value="d" onchange="markAnswered(8)"> d) $61,500</label>
+        </div>
+        <div class="q-result" id="qr-8"></div>
+      </div>
+
+      <!-- P9 -->
+      <div class="question-card" id="qcard-9">
+        <div class="question-num">Pregunta 9</div>
+        <p class="question-text">En el sistema francés de amortización, la cuota mensual es:</p>
+        <div class="options">
+          <label class="option-label" id="q9-a"><input type="radio" name="q9" value="a" onchange="markAnswered(9)"> a) Variable; aumenta cada mes porque el capital crece</label>
+          <label class="option-label" id="q9-b"><input type="radio" name="q9" value="b" onchange="markAnswered(9)"> b) Fija; y la proporción interés/capital también es constante todo el plazo</label>
+          <label class="option-label" id="q9-c"><input type="radio" name="q9" value="c" onchange="markAnswered(9)"> c) Fija; pero al inicio paga más interés y al final más capital</label>
+          <label class="option-label" id="q9-d"><input type="radio" name="q9" value="d" onchange="markAnswered(9)"> d) Variable; depende del saldo de cada mes</label>
+        </div>
+        <div class="q-result" id="qr-9"></div>
+      </div>
+
+      <!-- P10 -->
+      <div class="question-card" id="qcard-10">
+        <div class="question-num">Pregunta 10</div>
+        <p class="question-text">Un crédito de $200,000 a 6 meses, tasa mensual 2%, tiene cuota de $36,157. ¿Cuánto capital se amortiza en el mes 1?</p>
+        <div class="options">
+          <label class="option-label" id="q10-a"><input type="radio" name="q10" value="a" onchange="markAnswered(10)"> a) $36,157</label>
+          <label class="option-label" id="q10-b"><input type="radio" name="q10" value="b" onchange="markAnswered(10)"> b) $4,000</label>
+          <label class="option-label" id="q10-c"><input type="radio" name="q10" value="c" onchange="markAnswered(10)"> c) $32,157</label>
+          <label class="option-label" id="q10-d"><input type="radio" name="q10" value="d" onchange="markAnswered(10)"> d) $33,333</label>
+        </div>
+        <div class="q-result" id="qr-10"></div>
+      </div>
+
+      <!-- P11 -->
+      <div class="question-card" id="qcard-11">
+        <div class="question-num">Pregunta 11</div>
+        <p class="question-text">¿Cuál es el propósito principal de una tabla de amortización para un área de marketing?</p>
+        <div class="options">
+          <label class="option-label" id="q11-a"><input type="radio" name="q11" value="a" onchange="markAnswered(11)"> a) Calcular el interés simple total del crédito</label>
+          <label class="option-label" id="q11-b"><input type="radio" name="q11" value="b" onchange="markAnswered(11)"> b) Saber el saldo final únicamente</label>
+          <label class="option-label" id="q11-c"><input type="radio" name="q11" value="c" onchange="markAnswered(11)"> c) Proyectar el flujo de caja mensual y evaluar si es viable prepagar el crédito</label>
+          <label class="option-label" id="q11-d"><input type="radio" name="q11" value="d" onchange="markAnswered(11)"> d) Solo la usa el departamento de finanzas</label>
+        </div>
+        <div class="q-result" id="qr-11"></div>
+      </div>
+
+      <!-- P12 -->
+      <div class="question-card" id="qcard-12">
+        <div class="question-num">Pregunta 12</div>
+        <p class="question-text">Una marca te promete pagarte $90,000 en 3 años por una campaña que entregas hoy. Si la inflación es 8% anual, ¿cuánto valen realmente esos $90,000 en dinero de hoy?</p>
+        <div class="options">
+          <label class="option-label" id="q12-a"><input type="radio" name="q12" value="a" onchange="markAnswered(12)"> a) $90,000 — el monto no cambia</label>
+          <label class="option-label" id="q12-b"><input type="radio" name="q12" value="b" onchange="markAnswered(12)"> b) $71,459</label>
+          <label class="option-label" id="q12-c"><input type="radio" name="q12" value="c" onchange="markAnswered(12)"> c) $75,000</label>
+          <label class="option-label" id="q12-d"><input type="radio" name="q12" value="d" onchange="markAnswered(12)"> d) $83,333</label>
+        </div>
+        <div class="q-result" id="qr-12"></div>
+      </div>
+
+      <!-- P13 Punto Extra -->
+      <div class="extra-box">
+        <div class="question-num extra">Pregunta 13 — Punto Extra</div>
+        <p class="question-text" style="color:#5a3e00">
+          Tu área de marketing recibe <strong>$80,000 de presupuesto extra</strong>. Tienes dos opciones:<br><br>
+          <strong>Opción A — Campaña digital:</strong> Invertir $80,000 en pauta. La agencia garantiza 500,000 impactos y estima $95,000 en ventas adicionales en 30 días.<br><br>
+          <strong>Opción B — Equipo de producción:</strong> Comprar equipo por $80,000 que te ahorrará $4,000 mensuales durante 3 años.<br><br>
+          ¿Cuál eliges y por qué? <em>Justifica con números.</em>
+        </p>
+        <div class="field">
+          <textarea id="q13-extra" placeholder="Escribe tu respuesta aquí. Tip: calcula cuánto recuperas en total con cada opción..." style="min-height:100px"></textarea>
+        </div>
+      </div>
+
+      <div id="exam-progress-msg" class="progress-note">Responde todas las preguntas para habilitar el botón de envío.</div>
+      <button class="submit-exam-btn" id="submit-exam-btn" onclick="submitExam()" disabled>
+        <i data-lucide="send"></i> Enviar Examen y Ver Resultados
+      </button>
+    </div>
+  </div><!-- /fase-examen -->
+
+  <!-- RESULTADO DEL EXAMEN -->
+  <div class="exam-result-panel" id="exam-result-panel">
+    <h3>Resultado del Examen Diagnóstico</h3>
+    <div class="exam-score-big" id="exam-score-display">—</div>
+    <div class="exam-score-sub" id="exam-score-sub">—</div>
+    <div class="score-pills" id="score-pills-container"></div>
+    <button class="continue-btn" onclick="startDiagnostico()">
+      <i data-lucide="arrow-right"></i> Continuar a la Evaluación Diagnóstica
+    </button>
+  </div>
+
+  <!-- ==================== FASE 2: EVALUACIÓN DIAGNÓSTICA ==================== -->
+  <div class="diag-section" id="fase-diagnostico">
+
+    <div class="intro-box">
+      <h2>Fase 2 — Evaluación Diagnóstica de Cierre de Semestre</h2>
+      <p>Tu calificación del examen diagnóstico ya quedó registrada. Ahora evalúa honestamente tu desempeño en cada componente del semestre. <strong>Justifica cada calificación con argumentos reales.</strong></p>
+    </div>
+
+    <!-- EXAMEN PARCIAL 1 ANTERIOR -->
+    <div class="section">
+      <div class="section-title">
+        <i data-lucide="check-square"></i> Examen Parcial 1 &nbsp;<span class="badge dorado">25%</span>
+      </div>
+      <p class="section-subtitle">El examen parcial 1 que aplicamos en clase (Presupuestos). Los estudiantes que lo presentaron quedan <strong>exentos</strong> en este componente con calificación completa.</p>
+      <p style="font-size:.88rem;font-weight:600;color:#333;margin-bottom:10px">¿Presentaste el Examen Parcial 1?</p>
+      <div class="toggle-group">
+        <button class="toggle-btn" id="btn-si-parcial" onclick="setParcial1(true)">
+          <i data-lucide="check-circle"></i> Sí lo presenté
+        </button>
+        <button class="toggle-btn" id="btn-no-parcial" onclick="setParcial1(false)">
+          <i data-lucide="x-circle"></i> No lo presenté
+        </button>
+      </div>
+      <div class="parcial1-result exento" id="parcial1-result-exento" style="display:none">
+        <i data-lucide="award"></i>
+        <div><strong>¡Exento!</strong> — Tienes 10/10 en este componente (25% del total).</div>
+      </div>
+      <div class="parcial1-result no-exento" id="parcial1-result-noexento" style="display:none">
+        <i data-lucide="alert-circle"></i>
+        <div>No presentado — Se registra <strong>1.8/10</strong> en este componente.</div>
+      </div>
+    </div>
+
+    <!-- EXAMEN DIAGNÓSTICO (pre-llenado) -->
+    <div class="section">
+      <div class="section-title">
+        <i data-lucide="file-check"></i> Examen Diagnóstico (este examen) &nbsp;<span class="badge azul">25%</span>
+      </div>
+      <p class="section-subtitle">Tu calificación del examen que acabas de realizar. Se calificó automáticamente.</p>
+      <div class="locked-field">
+        <div>
+          <div class="locked-field-label">Calificación obtenida</div>
+          <div style="font-size:.78rem;color:#555;margin-top:3px" id="exam-detail-text">—</div>
+        </div>
+        <div class="locked-field-score" id="exam-nota-locked">—</div>
+      </div>
+    </div>
+
+    <!-- PROYECTO FINAL -->
+    <div class="section">
+      <div class="section-title">
+        <i data-lucide="target"></i> Proyecto Final &nbsp;<span class="badge">30%</span>
+      </div>
+      <p class="section-subtitle">Evalúa tu participación y entrega en el proyecto final del semestre. Mueve el control al número que honestamente representa tu desempeño.</p>
+
+      <div style="background:var(--gris);border-radius:8px;padding:14px 16px;margin-bottom:10px">
+        <p class="sub-slider-label">¿Qué tan completa y a tiempo fue tu entrega?</p>
+        <div class="slider-row">
+          <input type="range" id="sl-proyecto" min="0" max="10" step="0.5" value="5" oninput="updateSlider(this,'val-proyecto','')"/>
+          <span class="score-badge" id="val-proyecto">5.0</span>
+        </div>
+        <div class="slider-labels"><span>0 — No entregué</span><span>5 — Regular</span><span>10 — Excelente</span></div>
+      </div>
+
+      <div class="prom-bar verde">
+        <label class="verde">Calificación Proyecto Final</label>
+        <span class="prom-val verde" id="prom-proyecto">5.0</span>
+      </div>
+
+      <div class="justificacion-box">
+        <label><i data-lucide="edit-3"></i> Justificación — ¿Por qué te mereces esa calificación en el proyecto?</label>
+        <textarea id="just-proyecto" placeholder="Describe qué entregaste, tu nivel de participación, si fue completo o incompleto, si fue a tiempo..."></textarea>
+        <div class="justificacion-hint">Sé específico/a. Menciona entregables concretos.</div>
+      </div>
+    </div>
+
+    <!-- PARTICIPACIÓN -->
+    <div class="section">
+      <div class="section-title">
+        <i data-lucide="users"></i> Participación &nbsp;<span class="badge morado">20%</span>
+      </div>
+      <p class="section-subtitle">Evalúa tu participación considerando Blackboard (actividades en línea), participación en clase y actividades del semestre.</p>
+
+      <div class="sub-slider-box">
+        <p class="sub-slider-label">Blackboard — Actividades en línea y tareas</p>
+        <div class="slider-row">
+          <input type="range" class="azul-r" id="sl-blackboard" min="0" max="10" step="0.5" value="5" oninput="updateSliderAndAvg(this,'val-blackboard')"/>
+          <span class="score-badge azul" id="val-blackboard">5.0</span>
+        </div>
+        <div class="slider-labels"><span>0 — Nada</span><span>5 — Regular</span><span>10 — Todo completo</span></div>
+      </div>
+
+      <div class="sub-slider-box">
+        <p class="sub-slider-label">Participación en clase — Intervenciones, puntualidad, actitud</p>
+        <div class="slider-row">
+          <input type="range" class="azul-r" id="sl-clase" min="0" max="10" step="0.5" value="5" oninput="updateSliderAndAvg(this,'val-clase')"/>
+          <span class="score-badge azul" id="val-clase">5.0</span>
+        </div>
+        <div class="slider-labels"><span>0 — No participé</span><span>5 — Participé algo</span><span>10 — Muy activo/a</span></div>
+      </div>
+
+      <div class="sub-slider-box">
+        <p class="sub-slider-label">Actividades y dinámicas — Trabajo en equipo, entregas en clase</p>
+        <div class="slider-row">
+          <input type="range" class="azul-r" id="sl-actividades" min="0" max="10" step="0.5" value="5" oninput="updateSliderAndAvg(this,'val-actividades')"/>
+          <span class="score-badge azul" id="val-actividades">5.0</span>
+        </div>
+        <div class="slider-labels"><span>0 — No entregué</span><span>5 — Algunas</span><span>10 — Todas</span></div>
+      </div>
+
+      <div class="prom-bar morado">
+        <label class="morado" style="color:#3d2777">Promedio Participación</label>
+        <span class="prom-val morado" id="prom-participacion">5.0</span>
+      </div>
+
+      <div class="justificacion-box">
+        <label><i data-lucide="edit-3"></i> Justificación — ¿Por qué esa calificación en participación?</label>
+        <textarea id="just-participacion" placeholder="Describe tu asistencia, puntualidad, nivel de participación en clase, entregas en Blackboard..."></textarea>
+        <div class="justificacion-hint">Sé honesto/a. Menciona ejemplos específicos del semestre.</div>
+      </div>
+    </div>
+
+    <!-- CALIFICACIÓN FINAL CALCULADA -->
+    <div class="final-grade-box" id="final-grade-box">
+      <h3>Calificación Final Estimada</h3>
+      <div class="final-grade-row">
+        <div class="final-grade-num" id="final-grade-num">—</div>
+        <div class="grade-breakdown">
+          <div class="grade-row">
+            <span>Examen Parcial 1 (25%)</span>
+            <span id="gb-parcial1">—</span>
+          </div>
+          <div class="grade-row">
+            <span>Examen Diagnóstico (25%)</span>
+            <span id="gb-examen">—</span>
+          </div>
+          <div class="grade-row">
+            <span>Proyecto Final (30%)</span>
+            <span id="gb-proyecto">—</span>
+          </div>
+          <div class="grade-row">
+            <span>Participación (20%)</span>
+            <span id="gb-participacion">—</span>
+          </div>
+          <div class="grade-row" style="margin-top:6px;padding-top:8px;border-top:1px solid rgba(255,255,255,.3);">
+            <span>Total estimado</span>
+            <span id="gb-total">—</span>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.78rem;opacity:.75;margin-top:14px">* Esta es tu autoevaluación. La calificación oficial la define el profesor.</p>
+    </div>
+
+    <!-- RETROALIMENTACIÓN -->
+    <div class="section">
+      <div class="section-title"><i data-lucide="message-square"></i> Retroalimentación al Curso</div>
+      <p class="section-subtitle">¿Qué te llevás del semestre? ¿Qué mejorarías del curso? Tu opinión es valiosa.</p>
+      <div class="field">
+        <label>Lo que más te aportó del curso</label>
+        <textarea id="retro-positivo" placeholder="¿Qué aprendizaje o experiencia del semestre valoras más?"></textarea>
+      </div>
+      <div class="field">
+        <label>¿Qué mejorarías?</label>
+        <textarea id="retro-mejora" placeholder="¿Qué cambiarías en el curso, metodología, ritmo, temas...?"></textarea>
+      </div>
+    </div>
+
+    <!-- BOTÓN ENVIAR -->
+    <button class="submit-btn" id="submit-diag-btn" onclick="submitDiagnostico()">
+      <i data-lucide="send"></i> Enviar Evaluación Diagnóstica
+    </button>
+    <p class="progress-note">Al enviar, tus respuestas quedan guardadas y no podrás modificarlas.</p>
+
+  </div><!-- /fase-diagnostico -->
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">✅</div>
+    <h2>¡Evaluación enviada correctamente!</h2>
+    <p>Tus respuestas quedaron registradas.<br>El profesor Jován revisará los resultados. ¡Gracias por tu honestidad!</p>
+    <p style="margin-top:16px;color:#999;font-size:.82rem">Puedes cerrar esta página.</p>
+  </div>
+
+</div><!-- /container -->
+
+<div id="toast" style="position:fixed;bottom:24px;right:24px;background:#333;color:white;padding:12px 20px;border-radius:8px;font-size:.88rem;display:none;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.3)"></div>
+
+<script>
+// ===================== CONFIG =====================
+const SUPABASE_URL = 'https://ovhedecbiajbzyyliyjk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGVkZWNiaWFqYnp5eWxpeWprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MDg4MTEsImV4cCI6MjA5NDk4NDgxMX0.8oV91l_JbOimm0_uJBwjmyRri3SDtJmpzowRsaLKadM';
+let db = null;
+try { db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) {}
+
+// Respuestas correctas
+const ANSWERS = { 1:'c',2:'b',3:'c',4:'b',5:'c',6:'b',7:'b',8:'c',9:'c',10:'c',11:'c',12:'b' };
+const ANSWER_TEXT = {
+  1:'c) $79,200', 2:'b) VF = C(1 + i·n)', 3:'c) $66,550', 4:'b) En el compuesto...',
+  5:'c) $284,714', 6:'b) Los $180,000 hoy', 7:'b) Para proyectar...', 8:'c) $62,720',
+  9:'c) Fija; al inicio más interés', 10:'c) $32,157', 11:'c) Proyectar flujo de caja', 12:'b) $71,459'
+};
+
+// State
+let examSubmitted = false;
+let examScore = 0;    // aciertos 0-12
+let examNota = 0;     // 0-10
+let parcial1 = null;  // true/false
+let answeredCount = 0;
+
+// ===================== EXAM LOGIC =====================
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  updateAllSliders();
+  updateFinalGrade();
+});
+
+function markAnswered(n) {
+  const card = document.getElementById('qcard-' + n);
+  if (!card.classList.contains('answered')) {
+    card.classList.add('answered');
+    answeredCount++;
+    updateExamProgress();
+  }
+  // highlight selected
+  ['a','b','c','d'].forEach(opt => {
+    const lbl = document.getElementById('q' + n + '-' + opt);
+    lbl.classList.remove('selected');
+  });
+  const val = document.querySelector('input[name="q' + n + '"]:checked');
+  if (val) {
+    document.getElementById('q' + n + '-' + val.value).classList.add('selected');
+  }
+}
+
+function updateExamProgress() {
+  const msg = document.getElementById('exam-progress-msg');
+  const btn = document.getElementById('submit-exam-btn');
+  const nombre = document.getElementById('nombre').value.trim();
+  const matricula = document.getElementById('matricula').value.trim();
+  if (answeredCount >= 12 && nombre && matricula) {
+    btn.disabled = false;
+    msg.textContent = '¡Listo! Puedes enviar tu examen.';
+    msg.style.color = 'var(--verde)';
+  } else {
+    btn.disabled = true;
+    const pending = 12 - answeredCount;
+    msg.textContent = pending > 0 ? `Faltan ${pending} pregunta(s) por responder.` : 'Completa nombre y matrícula.';
+  }
+}
+
+// Listen for name/matricula changes too
+document.addEventListener('input', e => {
+  if (e.target.id === 'nombre' || e.target.id === 'matricula') {
+    updateExamProgress();
+  }
+});
+
+function submitExam() {
+  if (examSubmitted) return;
+  examSubmitted = true;
+
+  let aciertos = 0;
+  const results = {};
+
+  for (let i = 1; i <= 12; i++) {
+    const selected = document.querySelector('input[name="q' + i + '"]:checked');
+    const userAns = selected ? selected.value : null;
+    const correct = ANSWERS[i];
+    const isCorrect = userAns === correct;
+    if (isCorrect) aciertos++;
+    results[i] = { userAns, correct, isCorrect };
+
+    // Style cards
+    const card = document.getElementById('qcard-' + i);
+    card.classList.remove('answered');
+    card.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+    // Show result msg
+    const qr = document.getElementById('qr-' + i);
+    if (isCorrect) {
+      qr.className = 'q-result ok';
+      qr.textContent = '✓ Correcto';
+    } else {
+      qr.className = 'q-result fail';
+      qr.textContent = '✗ Incorrecto — Respuesta correcta: ' + ANSWER_TEXT[i];
+    }
+
+    // Style options
+    ['a','b','c','d'].forEach(opt => {
+      const lbl = document.getElementById('q' + i + '-' + opt);
+      lbl.classList.remove('selected');
+      if (opt === correct) lbl.classList.add('correct-opt');
+      if (opt === userAns && !isCorrect) lbl.classList.add('wrong-opt');
+      lbl.querySelector('input').disabled = true;
+    });
+  }
+
+  examScore = aciertos;
+  examNota = parseFloat(((aciertos / 12) * 10).toFixed(1));
+
+  // Show result panel
+  const panel = document.getElementById('exam-result-panel');
+  panel.classList.add('visible');
+  document.getElementById('exam-score-display').textContent = examNota.toFixed(1) + ' / 10';
+  document.getElementById('exam-score-sub').textContent = aciertos + ' de 12 respuestas correctas';
+
+  // Pills
+  const pillsContainer = document.getElementById('score-pills-container');
+  pillsContainer.innerHTML = '';
+  for (let i = 1; i <= 12; i++) {
+    const pill = document.createElement('div');
+    pill.className = 'score-pill ' + (results[i].isCorrect ? 'good' : 'bad');
+    pill.textContent = (results[i].isCorrect ? '✓' : '✗') + ' P' + i;
+    pillsContainer.appendChild(pill);
+  }
+
+  // Disable submit btn
+  document.getElementById('submit-exam-btn').disabled = true;
+  document.getElementById('submit-exam-btn').textContent = 'Examen enviado';
+
+  // Scroll to result
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Update stepper
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step1').classList.add('done');
+}
+
+function startDiagnostico() {
+  // Update stepper
+  document.getElementById('step2').classList.add('active');
+
+  // Pre-fill exam score in diagnostic
+  document.getElementById('exam-nota-locked').textContent = examNota.toFixed(1);
+  document.getElementById('exam-detail-text').textContent = examScore + '/12 aciertos → ' + examNota.toFixed(1) + '/10';
+  document.getElementById('gb-examen').textContent = examNota.toFixed(1);
+
+  // Show diagnostic section
+  document.getElementById('fase-diagnostico').classList.add('visible');
+
+  // Scroll
+  document.getElementById('fase-diagnostico').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  updateFinalGrade();
+}
+
+// ===================== DIAGNOSTIC LOGIC =====================
+function setParcial1(presentado) {
+  parcial1 = presentado;
+  document.getElementById('btn-si-parcial').className = 'toggle-btn ' + (presentado ? 'active-si' : '');
+  document.getElementById('btn-no-parcial').className = 'toggle-btn ' + (!presentado ? 'active-no' : '');
+  document.getElementById('parcial1-result-exento').style.display = presentado ? 'flex' : 'none';
+  document.getElementById('parcial1-result-noexento').style.display = !presentado ? 'flex' : 'none';
+  updateFinalGrade();
+}
+
+function getSliderVal(id) {
+  return parseFloat(document.getElementById(id).value);
+}
+
+function updateSlider(el, valId, colorClass) {
+  const v = parseFloat(el.value);
+  document.getElementById(valId).textContent = v.toFixed(1);
+  const pct = (v / 10) * 100;
+  const color = colorClass === 'azul-r' ? '#2c5282' : colorClass === 'morado-r' ? '#553c9a' : colorClass === 'dorado-r' ? '#C8920A' : '#1B6B3A';
+  el.style.background = `linear-gradient(to right, ${color} 0%, ${color} ${pct}%, #ddd ${pct}%, #ddd 100%)`;
+  updateFinalGrade();
+}
+
+function updateSliderAndAvg(el, valId) {
+  const v = parseFloat(el.value);
+  document.getElementById(valId).textContent = v.toFixed(1);
+  const pct = (v / 10) * 100;
+  el.style.background = `linear-gradient(to right, #2c5282 0%, #2c5282 ${pct}%, #ddd ${pct}%, #ddd 100%)`;
+  // Recalc avg participacion
+  const bb = getSliderVal('sl-blackboard');
+  const cl = getSliderVal('sl-clase');
+  const ac = getSliderVal('sl-actividades');
+  const avg = ((bb + cl + ac) / 3);
+  document.getElementById('prom-participacion').textContent = avg.toFixed(1);
+  updateFinalGrade();
+}
+
+function updateAllSliders() {
+  ['sl-proyecto'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) updateSlider(el, 'val-' + id.replace('sl-',''), '');
+  });
+  document.getElementById('prom-proyecto').textContent = '5.0';
+  document.getElementById('prom-participacion').textContent = '5.0';
+}
+
+// Live update for proyecto slider
+document.addEventListener('DOMContentLoaded', () => {
+  const slProyecto = document.getElementById('sl-proyecto');
+  if (slProyecto) {
+    slProyecto.addEventListener('input', function() {
+      document.getElementById('prom-proyecto').textContent = parseFloat(this.value).toFixed(1);
+    });
+  }
+});
+
+function updateFinalGrade() {
+  const parcial1Nota = parcial1 === null ? null : (parcial1 ? 10 : 1.8);
+  const examDiagNota = examSubmitted ? examNota : null;
+  const proyNota = getSliderVal('sl-proyecto');
+  const bb = getSliderVal('sl-blackboard');
+  const cl = getSliderVal('sl-clase');
+  const ac = getSliderVal('sl-actividades');
+  const partNota = (bb + cl + ac) / 3;
+
+  // Update breakdown labels
+  document.getElementById('gb-parcial1').textContent = parcial1Nota !== null ? parcial1Nota.toFixed(1) : '—';
+  document.getElementById('gb-examen').textContent = examDiagNota !== null ? examDiagNota.toFixed(1) : '—';
+  document.getElementById('gb-proyecto').textContent = proyNota.toFixed(1);
+  document.getElementById('gb-participacion').textContent = partNota.toFixed(1);
+  document.getElementById('prom-proyecto').textContent = proyNota.toFixed(1);
+
+  if (parcial1Nota === null || examDiagNota === null) {
+    document.getElementById('final-grade-num').textContent = '—';
+    document.getElementById('gb-total').textContent = '—';
+    return;
+  }
+
+  const total = (parcial1Nota * 0.25) + (examDiagNota * 0.25) + (proyNota * 0.30) + (partNota * 0.20);
+  document.getElementById('final-grade-num').textContent = total.toFixed(1);
+  document.getElementById('gb-total').textContent = total.toFixed(1) + ' / 10';
+}
+
+// ===================== SUBMIT DIAGNOSTIC =====================
+async function submitDiagnostico() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const matricula = document.getElementById('matricula').value.trim();
+
+  if (!nombre || !matricula) { showToast('Completa nombre y matrícula.'); return; }
+  if (parcial1 === null) { showToast('Indica si presentaste el Examen Parcial 1.'); return; }
+  if (!document.getElementById('just-proyecto').value.trim()) { showToast('Agrega la justificación del Proyecto Final.'); return; }
+  if (!document.getElementById('just-participacion').value.trim()) { showToast('Agrega la justificación de Participación.'); return; }
+
+  const btn = document.getElementById('submit-diag-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i data-lucide="loader"></i> Enviando...';
+  lucide.createIcons();
+
+  const parcial1Nota = parcial1 ? 10 : 1.8;
+  const proyNota = getSliderVal('sl-proyecto');
+  const bb = getSliderVal('sl-blackboard');
+  const cl = getSliderVal('sl-clase');
+  const ac = getSliderVal('sl-actividades');
+  const partNota = parseFloat(((bb + cl + ac) / 3).toFixed(2));
+  const total = parseFloat(((parcial1Nota * 0.25) + (examNota * 0.25) + (proyNota * 0.30) + (partNota * 0.20)).toFixed(2));
+
+  const payload = {
+    grupo: 'finanzas-5to',
+    nombre,
+    matricula,
+    presento_parcial1: parcial1,
+    nota_parcial1: parcial1Nota,
+    examen_diagnostico_aciertos: examScore,
+    examen_diagnostico_nota: examNota,
+    examen_extra_respuesta: document.getElementById('q13-extra').value.trim(),
+    nota_proyecto: proyNota,
+    justificacion_proyecto: document.getElementById('just-proyecto').value.trim(),
+    nota_blackboard: bb,
+    nota_participacion_clase: cl,
+    nota_actividades: ac,
+    nota_participacion: partNota,
+    justificacion_participacion: document.getElementById('just-participacion').value.trim(),
+    calificacion_final: total,
+    retroalimentacion_positivo: document.getElementById('retro-positivo').value.trim(),
+    retroalimentacion_mejora: document.getElementById('retro-mejora').value.trim(),
+  };
+
+  let success = false;
+  if (db) {
+    const { error } = await db.from('evaluaciones_finanzas').insert([payload]);
+    if (!error) success = true;
+    else console.error('Supabase error:', error);
+  }
+
+  if (success) {
+    document.getElementById('fase-diagnostico').style.display = 'none';
+    document.getElementById('exam-result-panel').style.display = 'none';
+    document.getElementById('fase-examen').style.display = 'none';
+    document.getElementById('stepper').style.display = 'none';
+    document.getElementById('success-screen').classList.add('visible');
+    document.getElementById('success-screen').scrollIntoView({ behavior: 'smooth' });
+  } else {
+    showToast('Error al guardar. Revisa tu conexión e intenta de nuevo.');
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="send"></i> Enviar Evaluación Diagnóstica';
+    lucide.createIcons();
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3500);
+}
+</script>
+</body>
+</html>

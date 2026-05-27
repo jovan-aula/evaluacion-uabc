@@ -49,6 +49,18 @@
   /* CONTAINER */
   .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px 60px; }
 
+  /* TABS */
+  .tabs-nav { background: white; border-radius: 10px; margin-bottom: 18px; display: flex; box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden; }
+  .tab-btn { flex: 1; padding: 13px 20px; border: none; background: transparent; cursor: pointer; font-size: .88rem; font-weight: 600; color: #666; border-bottom: 3px solid transparent; transition: all .2s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .tab-btn:hover { background: var(--verde-claro); color: var(--verde-oscuro); }
+  .tab-btn.active { color: var(--verde-oscuro); border-bottom-color: var(--verde); background: var(--verde-claro); }
+  .tab-btn .tab-badge { background: var(--verde); color: white; border-radius: 12px; font-size: .7rem; padding: 1px 8px; font-weight: 700; }
+  .tab-btn.active-fin .tab-badge { background: var(--azul); }
+  .tab-btn.active-fin { color: #1a3a7c; border-bottom-color: var(--azul); background: var(--azul-claro); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+
   /* STATS */
   .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 22px; }
   .stat-card { background: white; border-radius: 10px; padding: 16px 14px; box-shadow: 0 1px 4px rgba(0,0,0,.08); text-align: center; }
@@ -147,12 +159,27 @@
       <p>Presupuestos para la Mercadotecnia · 2026-1</p>
     </div>
     <div class="header-actions">
-      <button class="btn-outline" onclick="exportCSV()"><i data-lucide="download"></i> Exportar CSV</button>
+      <button class="btn-outline" onclick="copyLink('marketing-fest')" title="Copiar enlace Grupo 1"><i data-lucide="link"></i> Link Grupo 1</button>
+      <button class="btn-outline" onclick="copyLink('finanzas')" style="border-color:rgba(100,160,255,.7)" title="Copiar enlace Grupo 2"><i data-lucide="link"></i> Link Grupo 2</button>
       <button class="btn-outline" onclick="loadData()"><i data-lucide="refresh-cw"></i> Actualizar</button>
     </div>
   </div>
 
-  <div class="container">
+  <!-- TABS NAV -->
+  <div class="container" style="padding-bottom:0;padding-top:18px">
+    <div class="tabs-nav">
+      <button class="tab-btn active" id="tab-btn-mkt" onclick="switchTab('mkt')">
+        <span>Marketing Fest</span>
+        <span class="tab-badge" id="badge-mkt">0</span>
+      </button>
+      <button class="tab-btn" id="tab-btn-fin" onclick="switchTab('fin')">
+        <span>Finanzas 5to Sem</span>
+        <span class="tab-badge" id="badge-fin">0</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="container tab-panel active" id="tab-panel-mkt">
 
     <!-- STATS -->
     <div class="stats-grid">
@@ -257,12 +284,187 @@ function checkLogin() {
   }
 }
 
+let finanzasData = [];
+
 async function loadData() {
+  // Load Marketing Fest data
   const { data, error } = await db.from('evaluaciones_diagnosticas').select('*').order('created_at', { ascending: false });
-  if (error) { alert('Error: ' + error.message); return; }
-  allData = data || [];
-  updateStats();
-  renderTable();
+  if (!error) {
+    allData = data || [];
+    updateStats();
+    renderTable();
+    document.getElementById('badge-mkt').textContent = allData.length;
+  }
+  // Load Finanzas data
+  const { data: fd, error: fe } = await db.from('evaluaciones_finanzas').select('*').order('created_at', { ascending: false });
+  if (!fe) {
+    finanzasData = fd || [];
+    updateFinanzasStats();
+    renderFinanzas();
+    document.getElementById('badge-fin').textContent = finanzasData.length;
+  }
+}
+
+function switchTab(tab) {
+  if (tab === 'mkt') {
+    document.getElementById('tab-panel-mkt').classList.add('active');
+    document.getElementById('tab-panel-fin').classList.remove('active');
+    document.getElementById('tab-btn-mkt').className = 'tab-btn active';
+    document.getElementById('tab-btn-fin').className = 'tab-btn';
+  } else {
+    document.getElementById('tab-panel-fin').classList.add('active');
+    document.getElementById('tab-panel-mkt').classList.remove('active');
+    document.getElementById('tab-btn-fin').className = 'tab-btn active-fin';
+    document.getElementById('tab-btn-mkt').className = 'tab-btn';
+  }
+}
+
+function avgF(arr, key) {
+  const vals = arr.map(r => parseFloat(r[key]||0)).filter(v=>!isNaN(v));
+  return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+}
+
+function updateFinanzasStats() {
+  const n = finanzasData.length;
+  document.getElementById('sf-total').textContent = n;
+  if (!n) return;
+  document.getElementById('sf-prom-p1').textContent = avgF(finanzasData,'nota_parcial1').toFixed(1);
+  document.getElementById('sf-prom-examen').textContent = avgF(finanzasData,'examen_diagnostico_nota').toFixed(1);
+  document.getElementById('sf-prom-proyecto').textContent = avgF(finanzasData,'nota_proyecto').toFixed(1);
+  document.getElementById('sf-prom-final').textContent = avgF(finanzasData,'calificacion_final').toFixed(1);
+}
+
+function renderFinanzas() {
+  const search = document.getElementById('sf-search').value.toLowerCase();
+  const filterP = document.getElementById('sf-filter-parcial').value;
+  const sort = document.getElementById('sf-sort').value;
+
+  let rows = finanzasData.filter(r => {
+    const ms = !search || (r.nombre||'').toLowerCase().includes(search) || (r.matricula||'').toLowerCase().includes(search);
+    const mp = !filterP ||
+      (filterP === 'si' && r.presento_parcial1 === true) ||
+      (filterP === 'no' && r.presento_parcial1 === false);
+    return ms && mp;
+  });
+
+  rows.sort((a,b) => {
+    if (sort === 'created_at_desc') return new Date(b.created_at) - new Date(a.created_at);
+    if (sort === 'final_desc') return (b.calificacion_final||0) - (a.calificacion_final||0);
+    if (sort === 'final_asc') return (a.calificacion_final||0) - (b.calificacion_final||0);
+    if (sort === 'nombre_asc') return (a.nombre||'').localeCompare(b.nombre||'');
+    return 0;
+  });
+
+  document.getElementById('sf-count-label').textContent = rows.length + ' estudiante(s)';
+  const tbody = document.getElementById('sf-tabla-body');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty-state">No hay respuestas aún.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map((r,i) => {
+    const parcialBadge = r.presento_parcial1
+      ? '<span class="chip chip-green">Exento 10</span>'
+      : '<span class="chip chip-red">No presentó 1.8</span>';
+    const exDiag = (r.examen_diagnostico_nota||0).toFixed(1);
+    const exAciertos = r.examen_diagnostico_aciertos !== undefined ? r.examen_diagnostico_aciertos + '/12' : '—';
+    const proy = (r.nota_proyecto||0).toFixed(1);
+    const part = (r.nota_participacion||0).toFixed(1);
+    const final = (r.calificacion_final||0).toFixed(1);
+    const finalColor = parseFloat(final)>=7?'#1B6B3A':parseFloat(final)>=6?'#C8920A':'#e53e3e';
+    const fecha = r.created_at ? new Date(r.created_at).toLocaleDateString('es-MX') : '—';
+    return `<tr>
+      <td style="color:#aaa">${i+1}</td>
+      <td><strong>${r.nombre||'—'}</strong></td>
+      <td style="font-family:monospace;font-size:.8rem;">${r.matricula||'—'}</td>
+      <td>${parcialBadge}</td>
+      <td><span class="chip chip-blue">${exDiag} <span style="font-size:.7rem;opacity:.7">(${exAciertos})</span></span></td>
+      <td><span class="chip chip-green">${proy}</span></td>
+      <td><span class="chip chip-purple">${part}</span></td>
+      <td><span class="cal-badge" style="color:${finalColor}">${final}</span></td>
+      <td style="color:#999;font-size:.76rem;white-space:nowrap">${fecha}</td>
+      <td><button class="detail-btn" onclick='showFinanzasDetail("${r.id}")'>Ver detalle</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function showFinanzasDetail(id) {
+  const r = finanzasData.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('modal-nombre').textContent = r.nombre||'—';
+  document.getElementById('modal-sub').textContent = 'Matrícula: ' + (r.matricula||'—') + ' · Finanzas 5to Sem';
+  const parcialStr = r.presento_parcial1 ? '✅ Sí lo presentó — Exento (10/10)' : '❌ No lo presentó (1.8/10)';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="msec">
+      <div class="msec-title"><i data-lucide="bar-chart-2"></i> Resumen de Calificaciones</div>
+      <div class="mrow"><span class="mk">Examen Parcial 1 (25%)</span><span class="mv">${parcialStr}</span></div>
+      <div class="mrow"><span class="mk">Examen Diagnóstico (25%)</span><span class="mv">${(r.examen_diagnostico_nota||0).toFixed(1)}/10 (${r.examen_diagnostico_aciertos||0}/12 aciertos)</span></div>
+      <div class="mrow"><span class="mk">Proyecto Final (30%)</span><span class="mv">${(r.nota_proyecto||0).toFixed(1)}/10</span></div>
+      <div class="mrow"><span class="mk">Participación (20%)</span><span class="mv">${(r.nota_participacion||0).toFixed(1)}/10</span></div>
+      <div class="total-modal-box"><span class="tlabel">Calificación Final Estimada</span><span class="tval">${(r.calificacion_final||0).toFixed(1)} / 10</span></div>
+    </div>
+    <div class="msec">
+      <div class="msec-title azul"><i data-lucide="file-check"></i> Examen Diagnóstico</div>
+      <div class="mrow"><span class="mk">Aciertos</span><span class="mv">${r.examen_diagnostico_aciertos||0} / 12</span></div>
+      <div class="mrow"><span class="mk">Nota</span><span class="mv">${(r.examen_diagnostico_nota||0).toFixed(1)} / 10</span></div>
+      ${r.examen_extra_respuesta ? `<div class="justif-block"><strong>Respuesta Punto Extra (P13)</strong>${r.examen_extra_respuesta}</div>` : ''}
+    </div>
+    <div class="msec">
+      <div class="msec-title"><i data-lucide="target"></i> Proyecto Final</div>
+      ${bar(r.nota_proyecto||0,10,'var(--verde)')}
+      ${r.justificacion_proyecto ? `<div class="justif-block"><strong>Justificación</strong>${r.justificacion_proyecto}</div>` : ''}
+    </div>
+    <div class="msec">
+      <div class="msec-title azul"><i data-lucide="users"></i> Participación</div>
+      <div class="mrow"><span class="mk">Blackboard</span>${bar(r.nota_blackboard||0,10,'var(--azul)')}</div>
+      <div class="mrow"><span class="mk">Clase</span>${bar(r.nota_participacion_clase||0,10,'var(--azul)')}</div>
+      <div class="mrow"><span class="mk">Actividades</span>${bar(r.nota_actividades||0,10,'var(--azul)')}</div>
+      ${r.justificacion_participacion ? `<div class="justif-block"><strong>Justificación</strong>${r.justificacion_participacion}</div>` : ''}
+    </div>
+    ${r.retroalimentacion_positivo||r.retroalimentacion_mejora ? `
+    <div class="msec">
+      <div class="msec-title"><i data-lucide="message-square"></i> Retroalimentación</div>
+      ${r.retroalimentacion_positivo ? `<div class="justif-block"><strong>Lo que más aportó</strong>${r.retroalimentacion_positivo}</div>` : ''}
+      ${r.retroalimentacion_mejora ? `<div class="justif-block"><strong>¿Qué mejorarías?</strong>${r.retroalimentacion_mejora}</div>` : ''}
+    </div>` : ''}
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+  lucide.createIcons();
+}
+
+function exportFinanzasCSV() {
+  if (!finanzasData.length) { alert('No hay datos de Finanzas para exportar.'); return; }
+  const cols = ['nombre','matricula','presento_parcial1','nota_parcial1','examen_diagnostico_aciertos','examen_diagnostico_nota','nota_proyecto','justificacion_proyecto','nota_blackboard','nota_participacion_clase','nota_actividades','nota_participacion','justificacion_participacion','calificacion_final','retroalimentacion_positivo','retroalimentacion_mejora'];
+  const headers = ['Nombre','Matrícula','Presentó Parcial 1','Nota Parcial 1','Aciertos Examen Diag.','Nota Examen Diag.','Nota Proyecto','Justif. Proyecto','Nota Blackboard','Nota Participación Clase','Nota Actividades','Nota Participación','Justif. Participación','Cal. Final Estimada','Retro Positivo','Retro Mejora'];
+  const escape = v => { if (v===null||v===undefined) return ''; const s=String(v); return s.includes(',')||s.includes('"')||s.includes('\n') ? `"${s.replace(/"/g,'""')}"` : s; };
+  const rows = finanzasData.map(r => cols.map(c => escape(r[c])).join(','));
+  const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `evaluaciones_finanzas_2026-1_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function copyLink(path) {
+  const base = window.location.origin;
+  const url = base + '/' + path;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('Enlace copiado: ' + url);
+  });
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast-admin');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast-admin';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#333;color:white;padding:12px 20px;border-radius:8px;font-size:.88rem;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.3)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 
 function avg(arr, key) {
@@ -472,7 +674,26 @@ function exportCSV() {
   a.href = url; a.download = `evaluaciones_diagnosticas_2026-1_${new Date().toISOString().slice(0,10)}.csv`;
   a.click(); URL.revokeObjectURL(url);
 }
-  lucide.createIcons();
+
+function copyLink(path) {
+  const base = window.location.origin;
+  const url = base + '/' + path;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('Enlace copiado: ' + url);
+  });
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast-admin');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast-admin';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#333;color:white;padding:12px 20px;border-radius:8px;font-size:.88rem;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.3)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 </script>
 </body>
