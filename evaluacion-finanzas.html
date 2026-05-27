@@ -1044,7 +1044,7 @@ function setParcial1(presentado) {
   document.getElementById('parcial1-result-exento').style.display = presentado ? 'flex' : 'none';
   document.getElementById('parcial1-result-noexento').style.display = !presentado ? 'flex' : 'none';
   const lbl = document.getElementById('gb-parcial1-label');
-  if (lbl) lbl.textContent = presentado ? 'Examen Parcial 1 (25%)' : 'Examen Parcial 1 (20%)';
+  if (lbl) lbl.textContent = presentado ? 'Examen Parcial 1 → +2.5 pts (25%)' : 'Examen Parcial 1 → +2.0 pts (20%)';
   updateFinalGrade();
 }
 
@@ -1111,9 +1111,8 @@ function setCoherencia(val) {
 }
 
 function updateFinalGrade() {
-  // Parcial 1: presentó → 10/10 peso 25%; no presentó → 0/10 peso 20%
-  const parcial1Nota  = parcial1 === null ? null : (parcial1 ? 10 : 0);
-  const parcial1Peso  = parcial1 === null ? 0.25 : (parcial1 ? 0.25 : 0.20);
+  // Parcial 1: presentó → 2.5 pts (25% del total); no presentó → 2.0 pts fijos (20% del total)
+  const p1Contrib = parcial1 === null ? null : (parcial1 ? 2.5 : 2.0);
   const examP2Nota    = examSubmitted ? examNota : null;
 
   const m   = getSliderVal('sl-proy-marca');
@@ -1132,8 +1131,8 @@ function updateFinalGrade() {
 
   // Update labels — show nota (puntaje) format
   const p1Label = document.getElementById('gb-parcial1-label');
-  if (p1Label) p1Label.textContent = parcial1 === false ? 'Examen Parcial 1 (20%)' : 'Examen Parcial 1 (25%)';
-  document.getElementById('gb-parcial1').textContent      = parcial1Nota !== null ? (parcial1 ? '10.0' : '0.0') : '—';
+  if (p1Label) p1Label.textContent = parcial1 === false ? 'Examen Parcial 1 → +2.0 pts (20%)' : 'Examen Parcial 1 → +2.5 pts (25%)';
+  document.getElementById('gb-parcial1').textContent      = p1Contrib !== null ? (parcial1 ? '10.0 (exento)' : '— (base 20%)') : '—';
   document.getElementById('gb-examen').textContent        = examP2Nota  !== null ? examP2Nota.toFixed(1) : '—';
   document.getElementById('gb-proyecto').textContent      = proyNota.toFixed(1);
   document.getElementById('gb-participacion').textContent = partNota.toFixed(1);
@@ -1148,19 +1147,19 @@ function updateFinalGrade() {
     extraRow.style.display = 'none';
   }
 
-  if (parcial1Nota === null || examP2Nota === null) {
+  if (p1Contrib === null || examP2Nota === null) {
     document.getElementById('final-grade-num').textContent = '—';
     document.getElementById('gb-total').textContent = '—';
     return;
   }
 
-  const base  = (parcial1Nota * parcial1Peso) + (examP2Nota * 0.25) + (proyNota * 0.30) + (partNota * 0.20);
-  const total = parseFloat(Math.min(10, base + extraBonus).toFixed(1));
+  const base  = p1Contrib + (examP2Nota * 0.25) + (proyNota * 0.30) + (partNota * 0.20);
+  const total = parseFloat((base + extraBonus).toFixed(1));
   const maxPos = parcial1 ? '10.0' : '9.5';
   document.getElementById('final-grade-num').textContent = total.toFixed(1);
 
   // Breakdown detail line
-  const p1contrib   = (parcial1Nota * parcial1Peso).toFixed(2);
+  const p1contrib   = p1Contrib.toFixed(2);
   const p2contrib   = (examP2Nota * 0.25).toFixed(2);
   const proyContrib = (proyNota * 0.30).toFixed(2);
   const partContrib = (partNota * 0.20).toFixed(2);
@@ -1194,8 +1193,7 @@ async function submitDiagnostico() {
   btn.innerHTML = '<i data-lucide="loader"></i> Enviando...';
   lucide.createIcons();
 
-  const parcial1Nota = parcial1 ? 10 : 0;
-  const parcial1Peso = parcial1 ? 0.25 : 0.20;
+  const p1Contrib = parcial1 ? 2.5 : 2.0;
   const proyM = getSliderVal('sl-proy-marca');
   const proyC = getSliderVal('sl-proy-comercial');
   const proyF = getSliderVal('sl-proy-financiero');
@@ -1206,7 +1204,7 @@ async function submitDiagnostico() {
   const partNota = parseFloat(((bb + cl + ac) / 3).toFixed(2));
   const extraVal2 = tieneExtra === true ? parseFloat(document.getElementById('extra-puntos').value || 0) : 0;
   const extraBonus2 = tieneExtra === true ? (extraVal2 / 10) : 0;
-  const total = parseFloat(Math.min(10, (parcial1Nota * parcial1Peso) + (examNota * 0.25) + (proyNota * 0.30) + (partNota * 0.20) + extraBonus2).toFixed(2));
+  const total = parseFloat((p1Contrib + (examNota * 0.25) + (proyNota * 0.30) + (partNota * 0.20) + extraBonus2).toFixed(2));
 
   const payload = {
     grupo: 'finanzas-5to',
