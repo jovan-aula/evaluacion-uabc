@@ -305,6 +305,7 @@
   .toggle-btn:hover { border-color: var(--verde); }
   .toggle-btn.active-si { background: var(--verde); color: white; border-color: var(--verde); }
   .toggle-btn.active-no { background: var(--rojo); color: white; border-color: var(--rojo); }
+  .toggle-btn.active-quizas { background: var(--dorado); color: white; border-color: var(--dorado); }
 
   /* PARCIAL 1 RESULT */
   .parcial1-result {
@@ -687,28 +688,46 @@
     <!-- PROYECTO FINAL -->
     <div class="section">
       <div class="section-title">
-        <i data-lucide="target"></i> Proyecto Final &nbsp;<span class="badge">30%</span>
+        <i data-lucide="target"></i> Proyecto Final — Plan Comercial y Financiero &nbsp;<span class="badge">30%</span>
       </div>
-      <p class="section-subtitle">Evalúa tu participación y entrega en el proyecto final del semestre. Mueve el control al número que honestamente representa tu desempeño.</p>
+      <p class="section-subtitle">El proyecto consistió en desarrollar un plan comercial y financiero completo para una agencia. Evalúa honestamente tu desempeño en cada módulo.</p>
 
-      <div style="background:var(--gris);border-radius:8px;padding:14px 16px;margin-bottom:10px">
-        <p class="sub-slider-label">¿Qué tan completa y a tiempo fue tu entrega?</p>
+      <div class="sub-slider-box">
+        <p class="sub-slider-label">Módulo 1 — Marca y Propuesta de Valor <span style="font-weight:400;color:#888">(identidad, nombre, slogan, público objetivo, servicios)</span></p>
         <div class="slider-row">
-          <input type="range" id="sl-proyecto" min="0" max="10" step="0.5" value="5" oninput="updateSlider(this,'val-proyecto','')"/>
-          <span class="score-badge" id="val-proyecto">5.0</span>
+          <input type="range" id="sl-proy-marca" min="0" max="10" step="0.5" value="5" oninput="updateProyAvg(this,'val-proy-marca')"/>
+          <span class="score-badge" id="val-proy-marca">5.0</span>
         </div>
-        <div class="slider-labels"><span>0 — No entregué</span><span>5 — Regular</span><span>10 — Excelente</span></div>
+        <div class="slider-labels"><span>0 — No lo entregué</span><span>5 — Incompleto</span><span>10 — Completo y sólido</span></div>
+      </div>
+
+      <div class="sub-slider-box">
+        <p class="sub-slider-label">Módulo 2 — Estrategia Comercial <span style="font-weight:400;color:#888">(benchmarking, precios, canales, funnel)</span></p>
+        <div class="slider-row">
+          <input type="range" id="sl-proy-comercial" min="0" max="10" step="0.5" value="5" oninput="updateProyAvg(this,'val-proy-comercial')"/>
+          <span class="score-badge" id="val-proy-comercial">5.0</span>
+        </div>
+        <div class="slider-labels"><span>0 — No lo entregué</span><span>5 — Básico</span><span>10 — Completo y justificado</span></div>
+      </div>
+
+      <div class="sub-slider-box">
+        <p class="sub-slider-label">Módulo 3 — Modelo Financiero <span style="font-weight:400;color:#888">(costos fijos/variables, proyección semestral, indicadores: ROI, CAC, margen, punto de equilibrio)</span></p>
+        <div class="slider-row">
+          <input type="range" id="sl-proy-financiero" min="0" max="10" step="0.5" value="5" oninput="updateProyAvg(this,'val-proy-financiero')"/>
+          <span class="score-badge" id="val-proy-financiero">5.0</span>
+        </div>
+        <div class="slider-labels"><span>0 — No lo entregué</span><span>5 — Con errores</span><span>10 — Correcto y completo</span></div>
       </div>
 
       <div class="prom-bar verde">
-        <label class="verde">Calificación Proyecto Final</label>
+        <label class="verde">Promedio Proyecto Final</label>
         <span class="prom-val verde" id="prom-proyecto">5.0</span>
       </div>
 
       <div class="justificacion-box">
         <label><i data-lucide="edit-3"></i> Justificación — ¿Por qué te mereces esa calificación en el proyecto?</label>
-        <textarea id="just-proyecto" placeholder="Describe qué entregaste, tu nivel de participación, si fue completo o incompleto, si fue a tiempo..."></textarea>
-        <div class="justificacion-hint">Sé específico/a. Menciona entregables concretos.</div>
+        <textarea id="just-proyecto" placeholder="Describe qué módulos entregaste completos, cuáles quedaron incompletos, si tu modelo financiero tenía sentido, si las proyecciones eran coherentes..."></textarea>
+        <div class="justificacion-hint">Sé específico/a por módulo. Un buen argumento vale más que inflar el número.</div>
       </div>
     </div>
 
@@ -789,17 +808,49 @@
       <p style="font-size:.78rem;opacity:.75;margin-top:14px">* Esta es tu autoevaluación. La calificación oficial la define el profesor.</p>
     </div>
 
-    <!-- RETROALIMENTACIÓN -->
+    <!-- PUNTOS EXTRA -->
     <div class="section">
-      <div class="section-title"><i data-lucide="message-square"></i> Retroalimentación al Curso</div>
-      <p class="section-subtitle">¿Qué te llevás del semestre? ¿Qué mejorarías del curso? Tu opinión es valiosa.</p>
-      <div class="field">
-        <label>Lo que más te aportó del curso</label>
-        <textarea id="retro-positivo" placeholder="¿Qué aprendizaje o experiencia del semestre valoras más?"></textarea>
+      <div class="section-title"><i data-lucide="star"></i> Puntos Extra &nbsp;<span class="badge dorado">Opcional</span></div>
+      <p class="section-subtitle">¿Realizaste alguna actividad adicional que consideres merece puntos extra? (participación especial, investigación adicional, apoyo a compañeros, etc.)</p>
+      <p style="font-size:.88rem;font-weight:600;color:#333;margin-bottom:10px">¿Tienes puntos extra?</p>
+      <div class="toggle-group">
+        <button class="toggle-btn" id="btn-extra-si" onclick="setExtra(true)"><i data-lucide="check-circle"></i> Sí tengo</button>
+        <button class="toggle-btn" id="btn-extra-no" onclick="setExtra(false)"><i data-lucide="x-circle"></i> No tengo</button>
       </div>
+      <div id="extra-fields" style="display:none;margin-top:14px">
+        <div class="field">
+          <label>¿Cuántos puntos extra consideras que mereces? (0.5 – 2)</label>
+          <input type="number" id="extra-puntos" min="0" max="2" step="0.5" value="0.5" style="width:120px"/>
+        </div>
+        <div class="field">
+          <label>Describe la actividad extra</label>
+          <textarea id="extra-descripcion" placeholder="¿Qué hiciste? ¿Por qué crees que merece puntos extra?"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SATISFACCIÓN / COHERENCIA -->
+    <div class="section">
+      <div class="section-title"><i data-lucide="eye"></i> Indicador de Coherencia</div>
+      <p class="section-subtitle">Basándote en la calificación estimada que ves arriba, responde honestamente.</p>
+      <p style="font-size:.9rem;font-weight:600;color:#333;margin-bottom:12px">Si esa fuera tu calificación final en boleta, ¿refleja lo que realmente cumpliste durante el semestre?</p>
+      <div class="toggle-group" id="coherencia-group">
+        <button class="toggle-btn" id="coh-si" onclick="setCoherencia('si')">✅ Sí, es justa y la acepto</button>
+        <button class="toggle-btn" id="coh-quizas" onclick="setCoherencia('quizas')">🤔 Más o menos</button>
+        <button class="toggle-btn" id="coh-no" onclick="setCoherencia('no')">❌ Creo que no refleja lo que hice</button>
+      </div>
+      <div class="justificacion-box" style="margin-top:12px">
+        <label><i data-lucide="edit-3"></i> ¿Por qué?</label>
+        <textarea id="just-coherencia" placeholder="Explica brevemente si sientes que la calificación es justa, alta o baja respecto a tu esfuerzo real..."></textarea>
+      </div>
+    </div>
+
+    <!-- COMENTARIO FINAL -->
+    <div class="section">
+      <div class="section-title"><i data-lucide="message-square"></i> Comentario Final</div>
+      <p class="section-subtitle">Una sola pregunta: ¿qué te llevas del semestre o qué le dirías al profesor?</p>
       <div class="field">
-        <label>¿Qué mejorarías?</label>
-        <textarea id="retro-mejora" placeholder="¿Qué cambiarías en el curso, metodología, ritmo, temas...?"></textarea>
+        <textarea id="comentario-final" placeholder="Puede ser algo que aprendiste, algo que cambiarías, una reflexión, o lo que quieras compartir..." style="min-height:100px"></textarea>
       </div>
     </div>
 
@@ -1019,29 +1070,48 @@ function updateSliderAndAvg(el, valId) {
   updateFinalGrade();
 }
 
+function updateProyAvg(el, valId) {
+  const v = parseFloat(el.value);
+  document.getElementById(valId).textContent = v.toFixed(1);
+  const pct = (v / 10) * 100;
+  el.style.background = `linear-gradient(to right, #1B6B3A 0%, #1B6B3A ${pct}%, #ddd ${pct}%, #ddd 100%)`;
+  const m = getSliderVal('sl-proy-marca');
+  const c = getSliderVal('sl-proy-comercial');
+  const f = getSliderVal('sl-proy-financiero');
+  const avg = ((m + c + f) / 3);
+  document.getElementById('prom-proyecto').textContent = avg.toFixed(1);
+  updateFinalGrade();
+}
+
 function updateAllSliders() {
-  ['sl-proyecto'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) updateSlider(el, 'val-' + id.replace('sl-',''), '');
-  });
   document.getElementById('prom-proyecto').textContent = '5.0';
   document.getElementById('prom-participacion').textContent = '5.0';
 }
 
-// Live update for proyecto slider
-document.addEventListener('DOMContentLoaded', () => {
-  const slProyecto = document.getElementById('sl-proyecto');
-  if (slProyecto) {
-    slProyecto.addEventListener('input', function() {
-      document.getElementById('prom-proyecto').textContent = parseFloat(this.value).toFixed(1);
-    });
-  }
-});
+let tieneExtra = null;
+let coherencia = null;
+
+function setExtra(val) {
+  tieneExtra = val;
+  document.getElementById('btn-extra-si').className = 'toggle-btn ' + (val ? 'active-si' : '');
+  document.getElementById('btn-extra-no').className = 'toggle-btn ' + (!val ? 'active-no' : '');
+  document.getElementById('extra-fields').style.display = val ? 'block' : 'none';
+}
+
+function setCoherencia(val) {
+  coherencia = val;
+  ['si','quizas','no'].forEach(k => {
+    document.getElementById('coh-' + k).className = 'toggle-btn' + (k === val ? (k === 'si' ? ' active-si' : k === 'no' ? ' active-no' : ' active-quizas') : '');
+  });
+}
 
 function updateFinalGrade() {
   const parcial1Nota = parcial1 === null ? null : (parcial1 ? 10 : 1.8);
   const examDiagNota = examSubmitted ? examNota : null;
-  const proyNota = getSliderVal('sl-proyecto');
+  const proyM = getSliderVal('sl-proy-marca');
+  const proyC = getSliderVal('sl-proy-comercial');
+  const proyF = getSliderVal('sl-proy-financiero');
+  const proyNota = (proyM + proyC + proyF) / 3;
   const bb = getSliderVal('sl-blackboard');
   const cl = getSliderVal('sl-clase');
   const ac = getSliderVal('sl-actividades');
@@ -1074,6 +1144,7 @@ async function submitDiagnostico() {
   if (parcial1 === null) { showToast('Indica si presentaste el Examen Parcial 1.'); return; }
   if (!document.getElementById('just-proyecto').value.trim()) { showToast('Agrega la justificación del Proyecto Final.'); return; }
   if (!document.getElementById('just-participacion').value.trim()) { showToast('Agrega la justificación de Participación.'); return; }
+  if (!coherencia) { showToast('Responde el indicador de coherencia.'); return; }
 
   const btn = document.getElementById('submit-diag-btn');
   btn.disabled = true;
@@ -1081,7 +1152,10 @@ async function submitDiagnostico() {
   lucide.createIcons();
 
   const parcial1Nota = parcial1 ? 10 : 1.8;
-  const proyNota = getSliderVal('sl-proyecto');
+  const proyM = getSliderVal('sl-proy-marca');
+  const proyC = getSliderVal('sl-proy-comercial');
+  const proyF = getSliderVal('sl-proy-financiero');
+  const proyNota = (proyM + proyC + proyF) / 3;
   const bb = getSliderVal('sl-blackboard');
   const cl = getSliderVal('sl-clase');
   const ac = getSliderVal('sl-actividades');
@@ -1105,8 +1179,15 @@ async function submitDiagnostico() {
     nota_participacion: partNota,
     justificacion_participacion: document.getElementById('just-participacion').value.trim(),
     calificacion_final: total,
-    retroalimentacion_positivo: document.getElementById('retro-positivo').value.trim(),
-    retroalimentacion_mejora: document.getElementById('retro-mejora').value.trim(),
+    nota_proy_marca: getSliderVal('sl-proy-marca'),
+    nota_proy_comercial: getSliderVal('sl-proy-comercial'),
+    nota_proy_financiero: getSliderVal('sl-proy-financiero'),
+    tiene_puntos_extra: tieneExtra === true,
+    puntos_extra: tieneExtra ? parseFloat(document.getElementById('extra-puntos').value || 0) : 0,
+    descripcion_extra: tieneExtra ? document.getElementById('extra-descripcion').value.trim() : '',
+    coherencia_boleta: coherencia || '',
+    justificacion_coherencia: document.getElementById('just-coherencia').value.trim(),
+    comentario_final: document.getElementById('comentario-final').value.trim(),
   };
 
   let success = false;
