@@ -412,7 +412,7 @@
   <div class="stepper" id="stepper">
     <div class="step active" id="step1">
       <div class="step-num">1</div>
-      <span>Examen Diagnóstico</span>
+      <span>Examen Parcial 2</span>
     </div>
     <div class="step" id="step2">
       <div class="step-num">2</div>
@@ -424,7 +424,7 @@
   <div id="fase-examen">
 
     <div class="intro-box">
-      <h2>Fase 1 — Examen Diagnóstico de Presupuestos</h2>
+      <h2>Fase 1 — Examen Parcial 2: Presupuestos para la Mercadotecnia</h2>
       <p>Responde con honestidad cada pregunta. El examen se calificará automáticamente al enviar. Los resultados
       pasarán directo a tu evaluación diagnóstica. <strong>Lee bien antes de responder.</strong></p>
     </div>
@@ -628,7 +628,7 @@
 
   <!-- RESULTADO DEL EXAMEN -->
   <div class="exam-result-panel" id="exam-result-panel">
-    <h3>Resultado del Examen Diagnóstico</h3>
+    <h3>Resultado del Examen Parcial 2</h3>
     <div class="exam-score-big" id="exam-score-display">—</div>
     <div class="exam-score-sub" id="exam-score-sub">—</div>
     <div class="score-pills" id="score-pills-container"></div>
@@ -662,20 +662,20 @@
       </div>
       <div class="parcial1-result exento" id="parcial1-result-exento" style="display:none">
         <i data-lucide="award"></i>
-        <div><strong>¡Exento!</strong> — Tienes 10/10 en este componente (25% del total).</div>
+        <div><strong>¡Exento!</strong> — Tienes 10/10. Pesa <strong>25%</strong> de tu calificación final.</div>
       </div>
       <div class="parcial1-result no-exento" id="parcial1-result-noexento" style="display:none">
         <i data-lucide="alert-circle"></i>
-        <div>No presentado — Se registra <strong>1.8/10</strong> en este componente.</div>
+        <div>No presentado — Este componente pesa <strong>20%</strong> con calificación 0. Tu máximo posible es 9.5/10.</div>
       </div>
     </div>
 
     <!-- EXAMEN DIAGNÓSTICO (pre-llenado) -->
     <div class="section">
       <div class="section-title">
-        <i data-lucide="file-check"></i> Examen Diagnóstico (este examen) &nbsp;<span class="badge azul">25%</span>
+        <i data-lucide="file-check"></i> Examen Parcial 2 &nbsp;<span class="badge azul">25%</span>
       </div>
-      <p class="section-subtitle">Tu calificación del examen que acabas de realizar. Se calificó automáticamente.</p>
+      <p class="section-subtitle">Resultado del Examen Parcial 2 que acabas de realizar. Se calificó automáticamente.</p>
       <div class="locked-field">
         <div>
           <div class="locked-field-label">Calificación obtenida</div>
@@ -784,11 +784,11 @@
         <div class="final-grade-num" id="final-grade-num">—</div>
         <div class="grade-breakdown">
           <div class="grade-row">
-            <span>Examen Parcial 1 (25%)</span>
+            <span id="gb-parcial1-label">Examen Parcial 1 (25%)</span>
             <span id="gb-parcial1">—</span>
           </div>
           <div class="grade-row">
-            <span>Examen Diagnóstico (25%)</span>
+            <span>Examen Parcial 2 (25%)</span>
             <span id="gb-examen">—</span>
           </div>
           <div class="grade-row">
@@ -819,8 +819,8 @@
       </div>
       <div id="extra-fields" style="display:none;margin-top:14px">
         <div class="field">
-          <label>¿Cuántos puntos extra consideras que mereces? (0.5 – 2)</label>
-          <input type="number" id="extra-puntos" min="0" max="2" step="0.5" value="0.5" style="width:120px"/>
+          <label>Califica tu actividad extra del 1 al 10</label>
+          <input type="number" id="extra-puntos" min="1" max="10" step="1" value="5" style="width:120px" oninput="updateFinalGrade()"/>
         </div>
         <div class="field">
           <label>Describe la actividad extra</label>
@@ -848,7 +848,6 @@
     <!-- COMENTARIO FINAL -->
     <div class="section">
       <div class="section-title"><i data-lucide="message-square"></i> Comentario Final</div>
-      <p class="section-subtitle">Una sola pregunta: ¿qué te llevas del semestre o qué le dirías al profesor?</p>
       <div class="field">
         <textarea id="comentario-final" placeholder="Puede ser algo que aprendiste, algo que cambiarías, una reflexión, o lo que quieras compartir..." style="min-height:100px"></textarea>
       </div>
@@ -1040,6 +1039,8 @@ function setParcial1(presentado) {
   document.getElementById('btn-no-parcial').className = 'toggle-btn ' + (!presentado ? 'active-no' : '');
   document.getElementById('parcial1-result-exento').style.display = presentado ? 'flex' : 'none';
   document.getElementById('parcial1-result-noexento').style.display = !presentado ? 'flex' : 'none';
+  const lbl = document.getElementById('gb-parcial1-label');
+  if (lbl) lbl.textContent = presentado ? 'Examen Parcial 1 (25%)' : 'Examen Parcial 1 (20%)';
   updateFinalGrade();
 }
 
@@ -1106,33 +1107,45 @@ function setCoherencia(val) {
 }
 
 function updateFinalGrade() {
-  const parcial1Nota = parcial1 === null ? null : (parcial1 ? 10 : 1.8);
-  const examDiagNota = examSubmitted ? examNota : null;
-  const proyM = getSliderVal('sl-proy-marca');
-  const proyC = getSliderVal('sl-proy-comercial');
-  const proyF = getSliderVal('sl-proy-financiero');
-  const proyNota = (proyM + proyC + proyF) / 3;
-  const bb = getSliderVal('sl-blackboard');
-  const cl = getSliderVal('sl-clase');
-  const ac = getSliderVal('sl-actividades');
+  // Parcial 1: presentó → 10/10 peso 25%; no presentó → 0/10 peso 20%
+  const parcial1Nota  = parcial1 === null ? null : (parcial1 ? 10 : 0);
+  const parcial1Peso  = parcial1 === null ? 0.25 : (parcial1 ? 0.25 : 0.20);
+  const examP2Nota    = examSubmitted ? examNota : null;
+
+  const m   = getSliderVal('sl-proy-marca');
+  const co  = getSliderVal('sl-proy-comercial');
+  const fi  = getSliderVal('sl-proy-financiero');
+  const proyNota = (m + co + fi) / 3;
+
+  const bb  = getSliderVal('sl-blackboard');
+  const cl  = getSliderVal('sl-clase');
+  const ac  = getSliderVal('sl-actividades');
   const partNota = (bb + cl + ac) / 3;
 
-  // Update breakdown labels
-  document.getElementById('gb-parcial1').textContent = parcial1Nota !== null ? parcial1Nota.toFixed(1) : '—';
-  document.getElementById('gb-examen').textContent = examDiagNota !== null ? examDiagNota.toFixed(1) : '—';
-  document.getElementById('gb-proyecto').textContent = proyNota.toFixed(1);
-  document.getElementById('gb-participacion').textContent = partNota.toFixed(1);
-  document.getElementById('prom-proyecto').textContent = proyNota.toFixed(1);
+  // Puntos extra: 1-10 → se suman como val/10 al total (máx +1.0 punto)
+  const extraVal   = tieneExtra === true ? parseFloat(document.getElementById('extra-puntos').value || 0) : 0;
+  const extraBonus = tieneExtra === true ? (extraVal / 10) : 0;
 
-  if (parcial1Nota === null || examDiagNota === null) {
+  // Update labels
+  const p1Label = document.getElementById('gb-parcial1-label');
+  if (p1Label) p1Label.textContent = parcial1 === false ? 'Examen Parcial 1 (20%)' : 'Examen Parcial 1 (25%)';
+  document.getElementById('gb-parcial1').textContent      = parcial1Nota !== null ? (parcial1 ? '10.0 ✓' : '0.0') : '—';
+  document.getElementById('gb-examen').textContent        = examP2Nota  !== null ? examP2Nota.toFixed(1) : '—';
+  document.getElementById('gb-proyecto').textContent      = proyNota.toFixed(1);
+  document.getElementById('gb-participacion').textContent = partNota.toFixed(1);
+  document.getElementById('prom-proyecto').textContent    = proyNota.toFixed(1);
+
+  if (parcial1Nota === null || examP2Nota === null) {
     document.getElementById('final-grade-num').textContent = '—';
     document.getElementById('gb-total').textContent = '—';
     return;
   }
 
-  const total = (parcial1Nota * 0.25) + (examDiagNota * 0.25) + (proyNota * 0.30) + (partNota * 0.20);
+  const base  = (parcial1Nota * parcial1Peso) + (examP2Nota * 0.25) + (proyNota * 0.30) + (partNota * 0.20);
+  const total = parseFloat(Math.min(10, base + extraBonus).toFixed(1));
+  const maxPos = parcial1 ? '10.0' : '9.5';
   document.getElementById('final-grade-num').textContent = total.toFixed(1);
-  document.getElementById('gb-total').textContent = total.toFixed(1) + ' / 10';
+  document.getElementById('gb-total').textContent = total.toFixed(1) + ' / ' + maxPos;
 }
 
 // ===================== SUBMIT DIAGNOSTIC =====================
@@ -1151,7 +1164,8 @@ async function submitDiagnostico() {
   btn.innerHTML = '<i data-lucide="loader"></i> Enviando...';
   lucide.createIcons();
 
-  const parcial1Nota = parcial1 ? 10 : 1.8;
+  const parcial1Nota = parcial1 ? 10 : 0;
+  const parcial1Peso = parcial1 ? 0.25 : 0.20;
   const proyM = getSliderVal('sl-proy-marca');
   const proyC = getSliderVal('sl-proy-comercial');
   const proyF = getSliderVal('sl-proy-financiero');
@@ -1160,7 +1174,9 @@ async function submitDiagnostico() {
   const cl = getSliderVal('sl-clase');
   const ac = getSliderVal('sl-actividades');
   const partNota = parseFloat(((bb + cl + ac) / 3).toFixed(2));
-  const total = parseFloat(((parcial1Nota * 0.25) + (examNota * 0.25) + (proyNota * 0.30) + (partNota * 0.20)).toFixed(2));
+  const extraVal2 = tieneExtra === true ? parseFloat(document.getElementById('extra-puntos').value || 0) : 0;
+  const extraBonus2 = tieneExtra === true ? (extraVal2 / 10) : 0;
+  const total = parseFloat(Math.min(10, (parcial1Nota * parcial1Peso) + (examNota * 0.25) + (proyNota * 0.30) + (partNota * 0.20) + extraBonus2).toFixed(2));
 
   const payload = {
     grupo: 'finanzas-5to',
