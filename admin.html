@@ -254,6 +254,80 @@
   </div>
 </div>
 
+<!-- TAB PANEL: FINANZAS -->
+<div class="container tab-panel" id="tab-panel-fin">
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="val azul" id="sf-total">—</div>
+      <div class="lbl">Respuestas recibidas</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="sf-prom-p1">—</div>
+      <div class="lbl">Prom. Parcial 1</div>
+    </div>
+    <div class="stat-card">
+      <div class="val azul" id="sf-prom-examen">—</div>
+      <div class="lbl">Prom. Examen P2</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="sf-prom-proyecto">—</div>
+      <div class="lbl">Prom. Proyecto</div>
+    </div>
+    <div class="stat-card">
+      <div class="val dorado" id="sf-prom-final">—</div>
+      <div class="lbl">Prom. Cal. Final</div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <label>Buscar:</label>
+    <input type="text" id="sf-search" placeholder="Nombre o matrícula..." oninput="renderFinanzas()" style="width:200px;"/>
+    <label>Parcial 1:</label>
+    <select id="sf-filter-parcial" onchange="renderFinanzas()">
+      <option value="">Todos</option>
+      <option value="si">Sí presentó</option>
+      <option value="no">No presentó</option>
+    </select>
+    <label>Ordenar:</label>
+    <select id="sf-sort" onchange="renderFinanzas()">
+      <option value="created_at_desc">Más reciente</option>
+      <option value="final_desc">Mayor cal. final</option>
+      <option value="final_asc">Menor cal. final</option>
+      <option value="nombre_asc">Nombre A-Z</option>
+    </select>
+    <button class="btn-outline" onclick="exportFinanzasCSV()" style="border-color:var(--azul);color:var(--azul);background:white;margin-left:auto"><i data-lucide="download"></i> Exportar CSV</button>
+    <span id="sf-count-label" style="color:#888;font-size:.8rem;"></span>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre</th>
+          <th>Matrícula</th>
+          <th>Parcial 1</th>
+          <th><i data-lucide="file-text"></i> Examen P2</th>
+          <th><i data-lucide="target"></i> Proyecto</th>
+          <th><i data-lucide="users"></i> Participación</th>
+          <th><i data-lucide="calendar-check"></i> Asistencia</th>
+          <th>Cal. Final</th>
+          <th>Fecha</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="sf-tabla-body">
+        <tr><td colspan="11" class="empty-state">Cargando datos...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
 <!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
@@ -370,6 +444,7 @@ function renderFinanzas() {
     const exAciertos = r.examen_diagnostico_aciertos !== undefined ? r.examen_diagnostico_aciertos + '/12' : '—';
     const proy = (r.nota_proyecto||0).toFixed(1);
     const part = (r.nota_participacion||0).toFixed(1);
+    const asist = r.asistencia_pct !== undefined && r.asistencia_pct !== null ? r.asistencia_pct + '%' : '—';
     const final = (r.calificacion_final||0).toFixed(1);
     const finalColor = parseFloat(final)>=7?'#1B6B3A':parseFloat(final)>=6?'#C8920A':'#e53e3e';
     const fecha = r.created_at ? new Date(r.created_at).toLocaleDateString('es-MX') : '—';
@@ -381,6 +456,7 @@ function renderFinanzas() {
       <td><span class="chip chip-blue">${exDiag} <span style="font-size:.7rem;opacity:.7">(${exAciertos})</span></span></td>
       <td><span class="chip chip-green">${proy}</span></td>
       <td><span class="chip chip-purple">${part}</span></td>
+      <td style="font-size:.82rem;color:#0369a1;font-weight:600">${asist}</td>
       <td><span class="cal-badge" style="color:${finalColor}">${final}</span></td>
       <td style="color:#999;font-size:.76rem;white-space:nowrap">${fecha}</td>
       <td><button class="detail-btn" onclick='showFinanzasDetail("${r.id}")'>Ver detalle</button></td>
@@ -421,6 +497,24 @@ function showFinanzasDetail(id) {
       <div class="mrow"><span class="mk">Actividades</span>${bar(r.nota_actividades||0,10,'var(--azul)')}</div>
       ${r.justificacion_participacion ? `<div class="justif-block"><strong>Justificación</strong>${r.justificacion_participacion}</div>` : ''}
     </div>
+    ${r.asistencia_pct !== undefined && r.asistencia_pct !== null ? `
+    <div class="msec">
+      <div class="msec-title" style="color:#0369a1"><i data-lucide="calendar-check"></i> Asistencia</div>
+      <div class="mrow"><span class="mk">% Asistencia reportado</span><span class="mv" style="color:#0369a1;font-weight:700">${r.asistencia_pct}%</span></div>
+    </div>` : ''}
+    ${r.coherencia_boleta ? `
+    <div class="msec">
+      <div class="msec-title"><i data-lucide="eye"></i> Coherencia / Satisfacción</div>
+      <div class="mrow"><span class="mk">Respuesta</span><span class="mv">${r.coherencia_boleta === 'si' ? '✅ Sí, es justa' : r.coherencia_boleta === 'quizas' ? '🤔 Más o menos' : '❌ No refleja lo que hice'}</span></div>
+      ${r.justificacion_coherencia ? `<div class="justif-block"><strong>Justificación</strong>${r.justificacion_coherencia}</div>` : ''}
+      ${r.comentario_final ? `<div class="justif-block"><strong>Comentario final</strong>${r.comentario_final}</div>` : ''}
+    </div>` : ''}
+    ${r.tiene_puntos_extra ? `
+    <div class="msec">
+      <div class="msec-title" style="color:#C8920A"><i data-lucide="star"></i> Puntos Extra</div>
+      <div class="mrow"><span class="mk">Calificación extra</span><span class="mv">${r.puntos_extra}/10</span></div>
+      ${r.descripcion_extra ? `<div class="justif-block"><strong>Descripción</strong>${r.descripcion_extra}</div>` : ''}
+    </div>` : ''}
     ${r.retroalimentacion_positivo||r.retroalimentacion_mejora ? `
     <div class="msec">
       <div class="msec-title"><i data-lucide="message-square"></i> Retroalimentación</div>
@@ -444,14 +538,6 @@ function exportFinanzasCSV() {
   const a = document.createElement('a');
   a.href = url; a.download = `evaluaciones_finanzas_2026-1_${new Date().toISOString().slice(0,10)}.csv`;
   a.click(); URL.revokeObjectURL(url);
-}
-
-function copyLink(path) {
-  const base = window.location.origin;
-  const url = base + '/' + path;
-  navigator.clipboard.writeText(url).then(() => {
-    showToast('Enlace copiado: ' + url);
-  });
 }
 
 function showToast(msg) {

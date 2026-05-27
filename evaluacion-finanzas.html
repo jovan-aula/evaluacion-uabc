@@ -795,6 +795,22 @@
       </div>
     </div>
 
+    <!-- ASISTENCIA -->
+    <div class="section">
+      <div class="section-title">
+        <i data-lucide="calendar-check"></i> Asistencia &nbsp;<span class="badge" style="background:#e0f2fe;color:#0369a1">Registro</span>
+      </div>
+      <p class="section-subtitle">¿Qué porcentaje de las clases del semestre asististe? (Aproximado, sin contar faltas justificadas.)</p>
+      <div class="sub-slider-box">
+        <p class="sub-slider-label">Porcentaje de asistencia estimado</p>
+        <div class="slider-row">
+          <input type="range" id="sl-asistencia" min="0" max="100" step="5" value="80" oninput="document.getElementById('val-asistencia').textContent=this.value+'%'"/>
+          <span class="score-badge azul" id="val-asistencia">80%</span>
+        </div>
+        <div class="slider-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+      </div>
+    </div>
+
     <!-- CALIFICACIÓN FINAL CALCULADA -->
     <div class="final-grade-box" id="final-grade-box">
       <h3>Calificación Final Estimada</h3>
@@ -1253,7 +1269,7 @@ async function submitDiagnostico() {
     nombre,
     matricula,
     presento_parcial1: parcial1,
-    nota_parcial1: parcial1Nota,
+    nota_parcial1: p1Contrib,
     examen_diagnostico_aciertos: examScore,
     examen_diagnostico_nota: examNota,
     examen_extra_respuesta: document.getElementById('q13-extra').value.trim(),
@@ -1271,16 +1287,29 @@ async function submitDiagnostico() {
     tiene_puntos_extra: tieneExtra === true,
     puntos_extra: tieneExtra ? parseFloat(document.getElementById('extra-puntos').value || 0) : 0,
     descripcion_extra: tieneExtra ? document.getElementById('extra-descripcion').value.trim() : '',
+    asistencia_pct: parseInt(document.getElementById('sl-asistencia').value || 80),
     coherencia_boleta: coherencia || '',
     justificacion_coherencia: document.getElementById('just-coherencia').value.trim(),
     comentario_final: document.getElementById('comentario-final').value.trim(),
   };
 
   let success = false;
-  if (db) {
-    const { error } = await db.from('evaluaciones_finanzas').insert([payload]);
-    if (!error) success = true;
-    else console.error('Supabase error:', error);
+  let errorMsg = 'Error al guardar. Revisa tu conexión e intenta de nuevo.';
+  try {
+    if (db) {
+      const { error } = await db.from('evaluaciones_finanzas').insert([payload]);
+      if (!error) {
+        success = true;
+      } else {
+        console.error('Supabase error:', error);
+        errorMsg = 'Error Supabase: ' + (error.message || error.code || JSON.stringify(error));
+      }
+    } else {
+      errorMsg = 'No hay conexión con la base de datos.';
+    }
+  } catch(e) {
+    console.error('Exception:', e);
+    errorMsg = 'Excepción: ' + e.message;
   }
 
   if (success) {
@@ -1291,7 +1320,7 @@ async function submitDiagnostico() {
     document.getElementById('success-screen').classList.add('visible');
     document.getElementById('success-screen').scrollIntoView({ behavior: 'smooth' });
   } else {
-    showToast('Error al guardar. Revisa tu conexión e intenta de nuevo.');
+    showToast(errorMsg);
     btn.disabled = false;
     btn.innerHTML = '<i data-lucide="send"></i> Enviar Evaluación Diagnóstica';
     lucide.createIcons();
