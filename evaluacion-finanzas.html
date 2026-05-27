@@ -1045,11 +1045,15 @@ function startDiagnostico() {
   document.getElementById('exam-detail-text').textContent = examScore + '/12 aciertos → ' + examNota.toFixed(1) + '/10';
   document.getElementById('gb-examen').textContent = examNota.toFixed(1);
 
+  // Hide exam + result, show only diagnostic
+  document.getElementById('fase-examen').style.display = 'none';
+  document.getElementById('exam-result-panel').style.display = 'none';
+
   // Show diagnostic section
   document.getElementById('fase-diagnostico').classList.add('visible');
 
-  // Scroll
-  document.getElementById('fase-diagnostico').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 
   updateFinalGrade();
 }
