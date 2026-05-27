@@ -1154,9 +1154,28 @@ function updateFinalGrade() {
   }
 
   const base  = p1Contrib + (examP2Nota * 0.25) + (proyNota * 0.30) + (partNota * 0.20);
-  const total = parseFloat((base + extraBonus).toFixed(1));
+  const totalConExtras = parseFloat((base + extraBonus).toFixed(1));
+  const total = parseFloat(Math.min(10, base + extraBonus).toFixed(1));
   const maxPos = parcial1 ? '10.0' : '9.5';
   document.getElementById('final-grade-num').textContent = total.toFixed(1);
+
+  // Show extra note if extras push above 10
+  let extraNoteEl = document.getElementById('extra-note-line');
+  if (!extraNoteEl) {
+    extraNoteEl = document.createElement('p');
+    extraNoteEl.id = 'extra-note-line';
+    extraNoteEl.style.cssText = 'font-size:.8rem;margin-top:8px;background:rgba(200,146,10,.25);border-radius:6px;padding:6px 10px;font-weight:600;';
+    document.getElementById('final-grade-box').insertBefore(extraNoteEl, document.getElementById('final-grade-box').querySelector('p'));
+  }
+  if (extraBonus > 0 && totalConExtras > 10) {
+    extraNoteEl.style.display = 'block';
+    extraNoteEl.textContent = '⭐ Sin extras: ' + base.toFixed(1) + ' | Con extras: ' + totalConExtras.toFixed(1) + ' → calificación final: 10.0';
+  } else if (extraBonus > 0) {
+    extraNoteEl.style.display = 'block';
+    extraNoteEl.textContent = '⭐ Sin extras: ' + base.toFixed(1) + ' | Con extras: ' + totalConExtras.toFixed(1);
+  } else {
+    extraNoteEl.style.display = 'none';
+  }
 
   // Breakdown detail line
   const p1contrib   = p1Contrib.toFixed(2);
@@ -1204,7 +1223,8 @@ async function submitDiagnostico() {
   const partNota = parseFloat(((bb + cl + ac) / 3).toFixed(2));
   const extraVal2 = tieneExtra === true ? parseFloat(document.getElementById('extra-puntos').value || 0) : 0;
   const extraBonus2 = tieneExtra === true ? (extraVal2 / 10) : 0;
-  const total = parseFloat((p1Contrib + (examNota * 0.25) + (proyNota * 0.30) + (partNota * 0.20) + extraBonus2).toFixed(2));
+  const totalRaw = parseFloat((p1Contrib + (examNota * 0.25) + (proyNota * 0.30) + (partNota * 0.20) + extraBonus2).toFixed(2));
+  const total = parseFloat(Math.min(10, totalRaw).toFixed(2));
 
   const payload = {
     grupo: 'finanzas-5to',
