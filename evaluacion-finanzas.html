@@ -314,7 +314,7 @@
     font-size: .9rem; font-weight: 600;
   }
   .parcial1-result.exento { display: flex; background: var(--verde-claro); color: var(--verde-oscuro); align-items: center; gap: 8px; }
-  .parcial1-result.no-exento { display: flex; background: #fff5f5; color: #c53030; align-items: center; gap: 8px; }
+  .parcial1-result.no-exento { display: flex; background: #fffde7; color: #7a5a00; align-items: center; gap: 8px; border: 1.5px solid #f0c040; }
 
   /* LOCKED FIELD */
   .locked-field {
@@ -422,6 +422,28 @@
 
   <!-- ==================== FASE 1: EXAMEN ==================== -->
   <div id="fase-examen">
+
+    <!-- ETHICS INTRO -->
+    <div style="background:linear-gradient(135deg,#1B6B3A 0%,#2d8a55 100%);border-radius:12px;padding:26px 28px;margin-bottom:22px;color:white;box-shadow:0 4px 14px rgba(27,107,58,.25);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <i data-lucide="shield-check" style="width:22px;height:22px;flex-shrink:0;"></i>
+        <span style="font-size:1.05rem;font-weight:700;">Antes de comenzar — Ética, Valores y Profesionalismo</span>
+      </div>
+      <p style="font-size:.9rem;line-height:1.75;opacity:.95;">
+        Lo que estás a punto de hacer no es solo responder preguntas o llenar un formulario. Es un ejercicio de
+        <strong>honestidad contigo mismo/a</strong>.<br><br>
+        Un profesionista íntegro no solo domina los conceptos técnicos — también tiene la valentía de reconocer
+        lo que sabe y lo que aún le falta. La autoevaluación honesta es una habilidad que los mejores líderes
+        y directivos practican constantemente: sin ella, es imposible crecer.<br><br>
+        En el mundo real, inflar resultados o aparentar lo que no eres tiene consecuencias: decisiones mal tomadas,
+        equipos mal dirigidos y carreras que no despegan. <strong>La integridad no es opcional, es la base.</strong><br><br>
+        Hoy te pido que respondas con la misma honestidad que le exigirías a alguien en quien confías.
+        Nadie te juzgará por lo que no sabes — solo por no ser sincero/a contigo mismo/a.
+      </p>
+      <div style="margin-top:14px;background:rgba(255,255,255,.15);border-radius:8px;padding:10px 14px;font-size:.83rem;font-style:italic;opacity:.9;">
+        "La integridad es hacer lo correcto, incluso cuando nadie te está mirando." — C.S. Lewis
+      </div>
+    </div>
 
     <div class="intro-box">
       <h2>Fase 1 — Examen Parcial 2: Presupuestos para la Mercadotecnia</h2>
@@ -690,10 +712,10 @@
       <div class="section-title">
         <i data-lucide="target"></i> Proyecto Final — Plan Comercial y Financiero &nbsp;<span class="badge">30%</span>
       </div>
-      <p class="section-subtitle">El proyecto consistió en desarrollar un plan comercial y financiero completo para una agencia. Evalúa honestamente tu desempeño en cada módulo.</p>
+      <p class="section-subtitle">El proyecto final consistió en desarrollar un plan comercial y financiero completo para un negocio o empresa de tu elección. Evalúa honestamente tu desempeño en cada módulo.</p>
 
       <div class="sub-slider-box">
-        <p class="sub-slider-label">Módulo 1 — Marca y Propuesta de Valor <span style="font-weight:400;color:#888">(identidad, nombre, slogan, público objetivo, servicios)</span></p>
+        <p class="sub-slider-label">Módulo 1 — Marca y Propuesta de Valor <span style="font-weight:400;color:#888">(identidad de tu negocio, nombre, slogan, público objetivo, servicios)</span></p>
         <div class="slider-row">
           <input type="range" id="sl-proy-marca" min="0" max="10" step="0.5" value="5" oninput="updateProyAvg(this,'val-proy-marca')"/>
           <span class="score-badge" id="val-proy-marca">5.0</span>
@@ -726,7 +748,7 @@
 
       <div class="justificacion-box">
         <label><i data-lucide="edit-3"></i> Justificación — ¿Por qué te mereces esa calificación en el proyecto?</label>
-        <textarea id="just-proyecto" placeholder="Describe qué módulos entregaste completos, cuáles quedaron incompletos, si tu modelo financiero tenía sentido, si las proyecciones eran coherentes..."></textarea>
+        <textarea id="just-proyecto" placeholder="Describe qué módulos entregaste completos, cuáles quedaron incompletos, si tu modelo financiero era coherente con el negocio que elegiste, si las proyecciones tenían sentido..."></textarea>
         <div class="justificacion-hint">Sé específico/a por módulo. Un buen argumento vale más que inflar el número.</div>
       </div>
     </div>
