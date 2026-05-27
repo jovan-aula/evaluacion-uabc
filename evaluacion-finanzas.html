@@ -245,13 +245,17 @@
   .slider-row { display: flex; align-items: center; gap: 12px; }
   .slider-labels { display: flex; justify-content: space-between; font-size: .72rem; color: #888; margin-top: 4px; }
   input[type="range"] {
-    -webkit-appearance: none; width: 100%; height: 6px; border-radius: 4px;
+    -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 4px;
     background: linear-gradient(to right, #1B6B3A 0%, #1B6B3A 50%, #ddd 50%, #ddd 100%);
-    outline: none; cursor: pointer;
+    outline: none; cursor: pointer; touch-action: pan-y; user-select: none;
   }
   input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
-    background: var(--verde); border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer;
+    -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--verde); border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--verde); border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer;
   }
   input[type="range"].azul-r { background: linear-gradient(to right, #2c5282 0%, #2c5282 50%, #ddd 50%, #ddd 100%); }
   input[type="range"].azul-r::-webkit-slider-thumb { background: var(--azul); }
@@ -294,6 +298,10 @@
   }
   .justificacion-box textarea:focus { outline: none; border-color: var(--dorado); }
   .justificacion-hint { font-size: .78rem; color: #a07000; margin-top: 4px; }
+  .word-counter { font-size: .76rem; margin-top: 5px; color: #999; text-align: right; }
+  .word-counter.ok { color: #1B6B3A; font-weight: 600; }
+  .word-counter.warn { color: #C8920A; font-weight: 600; }
+  .word-counter.error { color: #e53e3e; font-weight: 600; }
 
   /* TOGGLE BUTTONS */
   .toggle-group { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -392,6 +400,13 @@
     .section { padding: 18px 16px; }
     .stepper { flex-direction: column; }
     .step { border-right: none; border-bottom: 1px solid var(--borde); }
+    /* Sliders más grandes en móvil para touch */
+    input[type="range"] { height: 8px; }
+    input[type="range"]::-webkit-slider-thumb { width: 30px; height: 30px; }
+    input[type="range"]::-moz-range-thumb { width: 30px; height: 30px; }
+    .slider-row { gap: 10px; padding: 6px 0; }
+    .score-badge { min-width: 52px; font-size: 1.2rem; padding: 4px 8px; }
+    .toggle-btn { padding: 12px 16px; font-size: .88rem; }
   }
 </style>
 </head>
@@ -744,7 +759,8 @@
 
       <div class="justificacion-box">
         <label><i data-lucide="edit-3"></i> Justificación — ¿Por qué te mereces esa calificación en el proyecto?</label>
-        <textarea id="just-proyecto" placeholder="Describe qué módulos entregaste completos, cuáles quedaron incompletos, si tu modelo financiero era coherente con el negocio que elegiste, si las proyecciones tenían sentido..."></textarea>
+        <textarea id="just-proyecto" placeholder="Describe qué módulos entregaste completos, cuáles quedaron incompletos, si tu modelo financiero era coherente con el negocio que elegiste, si las proyecciones tenían sentido..." oninput="updateWordCount(this,'wc-proyecto',20)"></textarea>
+        <div class="word-counter" id="wc-proyecto">0 / 20 palabras mínimas</div>
         <div class="justificacion-hint">Sé específico/a por módulo. Un buen argumento vale más que inflar el número.</div>
       </div>
     </div>
@@ -790,7 +806,8 @@
 
       <div class="justificacion-box">
         <label><i data-lucide="edit-3"></i> Justificación — ¿Por qué esa calificación en participación?</label>
-        <textarea id="just-participacion" placeholder="Describe tu asistencia, puntualidad, nivel de participación en clase, entregas en Blackboard..."></textarea>
+        <textarea id="just-participacion" placeholder="Describe tu asistencia, puntualidad, nivel de participación en clase, entregas en Blackboard..." oninput="updateWordCount(this,'wc-participacion',20)"></textarea>
+        <div class="word-counter" id="wc-participacion">0 / 20 palabras mínimas</div>
         <div class="justificacion-hint">Sé honesto/a. Menciona ejemplos específicos del semestre.</div>
       </div>
     </div>
@@ -879,7 +896,8 @@
       </div>
       <div class="justificacion-box" style="margin-top:12px">
         <label><i data-lucide="edit-3"></i> ¿Por qué?</label>
-        <textarea id="just-coherencia" placeholder="Explica brevemente si sientes que la calificación es justa, alta o baja respecto a tu esfuerzo real..."></textarea>
+        <textarea id="just-coherencia" placeholder="Explica brevemente si sientes que la calificación es justa, alta o baja respecto a tu esfuerzo real..." oninput="updateWordCount(this,'wc-coherencia',20)"></textarea>
+        <div class="word-counter" id="wc-coherencia">0 / 20 palabras mínimas</div>
       </div>
     </div>
 
@@ -1234,6 +1252,18 @@ function updateFinalGrade() {
   detailEl.textContent = p1contrib + ' + ' + p2contrib + ' + ' + proyContrib + ' + ' + partContrib + extraStr + ' = ' + total.toFixed(2);
 }
 
+// ===================== WORD COUNT =====================
+function countWords(text) {
+  return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+}
+function updateWordCount(el, counterId, min) {
+  const n = countWords(el.value);
+  const div = document.getElementById(counterId);
+  if (!div) return;
+  div.textContent = n + ' / ' + min + ' palabras mínimas';
+  div.className = 'word-counter ' + (n >= min ? 'ok' : n >= Math.floor(min*0.6) ? 'warn' : 'error');
+}
+
 // ===================== SUBMIT DIAGNOSTIC =====================
 async function submitDiagnostico() {
   const nombre = document.getElementById('nombre').value.trim();
@@ -1241,9 +1271,10 @@ async function submitDiagnostico() {
 
   if (!nombre || !matricula) { showToast('Completa nombre y matrícula.'); return; }
   if (parcial1 === null) { showToast('Indica si presentaste el Examen Parcial 1.'); return; }
-  if (!document.getElementById('just-proyecto').value.trim()) { showToast('Agrega la justificación del Proyecto Final.'); return; }
-  if (!document.getElementById('just-participacion').value.trim()) { showToast('Agrega la justificación de Participación.'); return; }
+  if (countWords(document.getElementById('just-proyecto').value) < 20) { showToast('La justificación del Proyecto debe tener al menos 20 palabras.'); document.getElementById('just-proyecto').focus(); return; }
+  if (countWords(document.getElementById('just-participacion').value) < 20) { showToast('La justificación de Participación debe tener al menos 20 palabras.'); document.getElementById('just-participacion').focus(); return; }
   if (!coherencia) { showToast('Responde el indicador de coherencia.'); return; }
+  if (countWords(document.getElementById('just-coherencia').value) < 20) { showToast('La justificación de coherencia debe tener al menos 20 palabras.'); document.getElementById('just-coherencia').focus(); return; }
 
   const btn = document.getElementById('submit-diag-btn');
   btn.disabled = true;

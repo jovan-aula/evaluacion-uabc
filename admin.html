@@ -336,7 +336,10 @@
         <h3 id="modal-nombre">Detalle del estudiante</h3>
         <p id="modal-sub"></p>
       </div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button id="modal-delete-btn" onclick="deleteCurrentRecord()" style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.5);color:white;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600">🗑 Borrar</button>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
     </div>
     <div class="modal-body" id="modal-body"></div>
   </div>
@@ -467,6 +470,8 @@ function renderFinanzas() {
 function showFinanzasDetail(id) {
   const r = finanzasData.find(x => x.id === id);
   if (!r) return;
+  currentModalId = id;
+  currentModalTable = 'evaluaciones_finanzas';
   document.getElementById('modal-nombre').textContent = r.nombre||'—';
   document.getElementById('modal-sub').textContent = 'Matrícula: ' + (r.matricula||'—') + ' · Finanzas 5to Sem';
   const parcialStr = r.presento_parcial1 ? '✅ Sí lo presentó — Exento (10/10)' : '❌ No lo presentó (1.8/10)';
@@ -631,6 +636,8 @@ function bar(val, max, color) {
 function showDetail(id) {
   const r = allData.find(x => x.id === id);
   if (!r) return;
+  currentModalId = id;
+  currentModalTable = 'evaluaciones_diagnosticas';
   const f = r.faltas||0;
   const fText = f===0?'0 — Perfecta':f<=4?`${f} — Dentro del límite`:`${f} ⚠️ Excede el máximo de 4`;
 
@@ -715,8 +722,35 @@ function showDetail(id) {
   lucide.createIcons();
 }
 
+let currentModalId = null;
+let currentModalTable = null;
+
+async function deleteCurrentRecord() {
+  if (!currentModalId || !currentModalTable) return;
+  const r = currentModalTable === 'evaluaciones_finanzas'
+    ? finanzasData.find(x => x.id === currentModalId)
+    : allData.find(x => x.id === currentModalId);
+  const nombre = r ? r.nombre : 'este registro';
+  if (!confirm('¿Borrar el envío de ' + nombre + '? Esta acción no se puede deshacer.')) return;
+  const btn = document.getElementById('modal-delete-btn');
+  btn.textContent = 'Borrando...';
+  btn.disabled = true;
+  const { error } = await db.from(currentModalTable).delete().eq('id', currentModalId);
+  if (error) {
+    showToast('Error al borrar: ' + error.message);
+    btn.textContent = '🗑 Borrar';
+    btn.disabled = false;
+  } else {
+    closeModal();
+    showToast('Registro borrado correctamente.');
+    loadData();
+  }
+}
+
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
+  currentModalId = null;
+  currentModalTable = null;
 }
 
 function exportCSV() {
