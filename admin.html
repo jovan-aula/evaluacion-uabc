@@ -57,6 +57,8 @@
   .tab-btn .tab-badge { background: var(--verde); color: white; border-radius: 12px; font-size: .7rem; padding: 1px 8px; font-weight: 700; }
   .tab-btn.active-fin .tab-badge { background: var(--azul); }
   .tab-btn.active-fin { color: #1a3a7c; border-bottom-color: var(--azul); background: var(--azul-claro); }
+  .tab-btn.active-cal .tab-badge { background: var(--dorado); }
+  .tab-btn.active-cal { color: #7c3a00; border-bottom-color: var(--dorado); background: var(--dorado-claro); }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
@@ -175,6 +177,10 @@
       <button class="tab-btn" id="tab-btn-fin" onclick="switchTab('fin')">
         <span>Finanzas 5to Sem</span>
         <span class="tab-badge" id="badge-fin">0</span>
+      </button>
+      <button class="tab-btn" id="tab-btn-cal" onclick="switchTab('cal')">
+        <span>Calificaciones Finales</span>
+        <span class="tab-badge" id="badge-cal">0</span>
       </button>
     </div>
   </div>
@@ -328,6 +334,122 @@
 
 </div>
 
+<!-- TAB PANEL: CALIFICACIONES FINALES -->
+<div class="container tab-panel" id="tab-panel-cal">
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="val dorado" id="sc-total">—</div>
+      <div class="lbl">Alumnos capturados</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" id="sc-prom">—</div>
+      <div class="lbl">Promedio general</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" style="color:#1B6B3A" id="sc-aprobados">—</div>
+      <div class="lbl">Aprobados (≥ 6)</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" style="color:#e53e3e" id="sc-reprobados">—</div>
+      <div class="lbl">Reprobados (< 6)</div>
+    </div>
+    <div class="stat-card">
+      <div class="val azul" id="sc-grupos">—</div>
+      <div class="lbl">Grupos registrados</div>
+    </div>
+  </div>
+
+  <!-- FILTERS + ADD -->
+  <div class="filters">
+    <label>Buscar:</label>
+    <input type="text" id="cal-search" placeholder="Nombre o matrícula..." oninput="renderCalTable()" style="width:200px;"/>
+    <label>Grupo:</label>
+    <select id="cal-filter-grupo" onchange="renderCalTable()">
+      <option value="">Todos</option>
+      <option value="Marketing Fest">Marketing Fest</option>
+      <option value="Finanzas 5to Sem">Finanzas 5to Sem</option>
+    </select>
+    <label>Ordenar:</label>
+    <select id="cal-sort" onchange="renderCalTable()">
+      <option value="nombre_asc">Nombre A-Z</option>
+      <option value="cal_desc">Mayor calificación</option>
+      <option value="cal_asc">Menor calificación</option>
+      <option value="reciente">Más reciente</option>
+    </select>
+    <button onclick="openCalModal()" style="padding:7px 16px;background:var(--dorado);color:white;border:none;border-radius:6px;font-size:.85rem;font-weight:700;cursor:pointer;margin-left:auto"><i data-lucide="plus"></i> Agregar calificación</button>
+    <button onclick="exportCalCSV()" style="padding:7px 14px;border:1.5px solid var(--dorado);color:var(--dorado);background:white;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer"><i data-lucide="download"></i> CSV</button>
+    <span id="cal-count-label" style="color:#888;font-size:.8rem;"></span>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre</th>
+          <th>Matrícula</th>
+          <th>Grupo</th>
+          <th><i data-lucide="award"></i> Cal. Final</th>
+          <th>Observaciones</th>
+          <th>Fecha</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="cal-tabla-body">
+        <tr><td colspan="8" class="empty-state">Cargando datos...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- MODAL CALIFICACIONES FINALES -->
+<div class="modal-overlay" id="cal-modal-overlay" onclick="if(event.target===this)closeCalModal()">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header" style="background:var(--dorado)">
+      <div>
+        <h3 id="cal-modal-titulo">Agregar Calificación Final</h3>
+        <p style="font-size:.8rem;opacity:.85">Captura la calificación oficial del alumno</p>
+      </div>
+      <button class="modal-close" onclick="closeCalModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:24px">
+      <input type="hidden" id="cal-edit-id"/>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <label style="font-size:.82rem;font-weight:600;color:#555;display:block;margin-bottom:4px">Grupo *</label>
+          <select id="cal-form-grupo" style="width:100%;padding:9px 12px;border:1.5px solid var(--borde);border-radius:6px;font-size:.9rem;font-family:inherit">
+            <option value="Marketing Fest">Marketing Fest</option>
+            <option value="Finanzas 5to Sem">Finanzas 5to Sem</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.82rem;font-weight:600;color:#555;display:block;margin-bottom:4px">Nombre completo *</label>
+          <input type="text" id="cal-form-nombre" placeholder="Ej. García López Alejandro" style="width:100%;padding:9px 12px;border:1.5px solid var(--borde);border-radius:6px;font-size:.9rem;font-family:inherit"/>
+        </div>
+        <div>
+          <label style="font-size:.82rem;font-weight:600;color:#555;display:block;margin-bottom:4px">Matrícula</label>
+          <input type="text" id="cal-form-matricula" placeholder="Ej. 1234567" style="width:100%;padding:9px 12px;border:1.5px solid var(--borde);border-radius:6px;font-size:.9rem;font-family:inherit;font-family:monospace"/>
+        </div>
+        <div>
+          <label style="font-size:.82rem;font-weight:600;color:#555;display:block;margin-bottom:4px">Calificación Final (0 - 10) *</label>
+          <input type="number" id="cal-form-cal" min="0" max="10" step="0.1" placeholder="Ej. 8.5" style="width:100%;padding:9px 12px;border:1.5px solid var(--borde);border-radius:6px;font-size:1.1rem;font-weight:700;font-family:inherit;color:var(--dorado)"/>
+        </div>
+        <div>
+          <label style="font-size:.82rem;font-weight:600;color:#555;display:block;margin-bottom:4px">Observaciones</label>
+          <textarea id="cal-form-obs" placeholder="Notas adicionales (opcional)..." rows="2" style="width:100%;padding:9px 12px;border:1.5px solid var(--borde);border-radius:6px;font-size:.88rem;font-family:inherit;resize:vertical"></textarea>
+        </div>
+        <div id="cal-form-error" style="color:#e53e3e;font-size:.82rem;display:none"></div>
+        <button onclick="saveCalificacion()" style="width:100%;padding:12px;background:var(--dorado);color:white;border:none;border-radius:7px;font-size:.95rem;font-weight:700;cursor:pointer">Guardar calificación</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
@@ -362,6 +484,7 @@ function checkLogin() {
 }
 
 let finanzasData = [];
+let calificacionesData = [];
 
 async function loadData() {
   // Load Marketing Fest data
@@ -380,20 +503,25 @@ async function loadData() {
     renderFinanzas();
     document.getElementById('badge-fin').textContent = finanzasData.length;
   }
+  // Load Calificaciones Finales
+  const { data: cd, error: ce } = await db.from('calificaciones_finales').select('*').order('nombre', { ascending: true });
+  calificacionesData = ce ? [] : (cd || []);
+  updateCalStats();
+  renderCalTable();
+  document.getElementById('badge-cal').textContent = calificacionesData.length;
+  if (ce) document.getElementById('cal-tabla-body').innerHTML = '<tr><td colspan="8" class="empty-state">⚠️ Tabla no encontrada — crea la tabla en Supabase primero.</td></tr>';
 }
 
 function switchTab(tab) {
-  if (tab === 'mkt') {
-    document.getElementById('tab-panel-mkt').classList.add('active');
-    document.getElementById('tab-panel-fin').classList.remove('active');
-    document.getElementById('tab-btn-mkt').className = 'tab-btn active';
-    document.getElementById('tab-btn-fin').className = 'tab-btn';
-  } else {
-    document.getElementById('tab-panel-fin').classList.add('active');
-    document.getElementById('tab-panel-mkt').classList.remove('active');
-    document.getElementById('tab-btn-fin').className = 'tab-btn active-fin';
-    document.getElementById('tab-btn-mkt').className = 'tab-btn';
-  }
+  const panels = ['mkt','fin','cal'];
+  panels.forEach(p => {
+    document.getElementById('tab-panel-' + p).classList.remove('active');
+    document.getElementById('tab-btn-' + p).className = 'tab-btn';
+  });
+  document.getElementById('tab-panel-' + tab).classList.add('active');
+  if (tab === 'mkt') document.getElementById('tab-btn-mkt').className = 'tab-btn active';
+  else if (tab === 'fin') document.getElementById('tab-btn-fin').className = 'tab-btn active-fin';
+  else if (tab === 'cal') document.getElementById('tab-btn-cal').className = 'tab-btn active-cal';
 }
 
 function avgF(arr, key) {
@@ -794,6 +922,162 @@ function exportCSV() {
   a.href = url; a.download = `evaluaciones_diagnosticas_2026-1_${new Date().toISOString().slice(0,10)}.csv`;
   a.click(); URL.revokeObjectURL(url);
 }
+
+// ── CALIFICACIONES FINALES ──────────────────────────────────────────────────
+
+function updateCalStats() {
+  const n = calificacionesData.length;
+  document.getElementById('sc-total').textContent = n || '—';
+  if (!n) {
+    ['sc-prom','sc-aprobados','sc-reprobados','sc-grupos'].forEach(id => document.getElementById(id).textContent = '—');
+    return;
+  }
+  const vals = calificacionesData.map(r => parseFloat(r.calificacion_final||0));
+  const prom = vals.reduce((a,b)=>a+b,0)/vals.length;
+  const aprobados = vals.filter(v => v >= 6).length;
+  const grupos = new Set(calificacionesData.map(r => r.grupo)).size;
+  document.getElementById('sc-prom').textContent = prom.toFixed(1);
+  document.getElementById('sc-aprobados').textContent = aprobados;
+  document.getElementById('sc-reprobados').textContent = n - aprobados;
+  document.getElementById('sc-grupos').textContent = grupos;
+}
+
+function renderCalTable() {
+  const search = document.getElementById('cal-search').value.toLowerCase();
+  const grupo = document.getElementById('cal-filter-grupo').value;
+  const sort = document.getElementById('cal-sort').value;
+
+  let rows = calificacionesData.filter(r => {
+    const ms = !search || (r.nombre||'').toLowerCase().includes(search) || (r.matricula||'').toLowerCase().includes(search);
+    const mg = !grupo || r.grupo === grupo;
+    return ms && mg;
+  });
+
+  rows.sort((a,b) => {
+    if (sort === 'nombre_asc') return (a.nombre||'').localeCompare(b.nombre||'');
+    if (sort === 'cal_desc') return (b.calificacion_final||0) - (a.calificacion_final||0);
+    if (sort === 'cal_asc') return (a.calificacion_final||0) - (b.calificacion_final||0);
+    if (sort === 'reciente') return new Date(b.created_at) - new Date(a.created_at);
+    return 0;
+  });
+
+  document.getElementById('cal-count-label').textContent = rows.length + ' alumno(s)';
+  const tbody = document.getElementById('cal-tabla-body');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No hay calificaciones capturadas aún.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map((r,i) => {
+    const cal = parseFloat(r.calificacion_final||0);
+    const calColor = cal>=8?'#1B6B3A':cal>=6?'#C8920A':'#e53e3e';
+    const calBadge = cal>=6
+      ? `<span class="chip chip-green" style="font-size:.9rem;font-weight:700">${cal.toFixed(1)}</span>`
+      : `<span class="chip chip-red" style="font-size:.9rem;font-weight:700">${cal.toFixed(1)} ✗</span>`;
+    const grupoChip = r.grupo === 'Marketing Fest'
+      ? `<span class="chip chip-green">${r.grupo}</span>`
+      : r.grupo === 'Finanzas 5to Sem'
+      ? `<span class="chip chip-blue">${r.grupo}</span>`
+      : `<span class="chip chip-purple">${r.grupo}</span>`;
+    const fecha = r.created_at ? new Date(r.created_at).toLocaleDateString('es-MX') : '—';
+    return `<tr>
+      <td style="color:#aaa">${i+1}</td>
+      <td><strong>${r.nombre||'—'}</strong></td>
+      <td style="font-family:monospace;font-size:.8rem;">${r.matricula||'—'}</td>
+      <td>${grupoChip}</td>
+      <td>${calBadge}</td>
+      <td style="color:#666;font-size:.82rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.observaciones||'—'}</td>
+      <td style="color:#999;font-size:.76rem;white-space:nowrap">${fecha}</td>
+      <td>
+        <button class="detail-btn" onclick='openCalModal("${r.id}")'>Editar</button>
+        <button class="detail-btn" style="border-color:#e53e3e;color:#e53e3e;margin-left:4px" onclick='deleteCalificacion("${r.id}")'>✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openCalModal(id) {
+  document.getElementById('cal-edit-id').value = id || '';
+  document.getElementById('cal-form-error').style.display = 'none';
+  if (id) {
+    const r = calificacionesData.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('cal-modal-titulo').textContent = 'Editar Calificación Final';
+    document.getElementById('cal-form-grupo').value = r.grupo || 'Marketing Fest';
+    document.getElementById('cal-form-nombre').value = r.nombre || '';
+    document.getElementById('cal-form-matricula').value = r.matricula || '';
+    document.getElementById('cal-form-cal').value = r.calificacion_final || '';
+    document.getElementById('cal-form-obs').value = r.observaciones || '';
+  } else {
+    document.getElementById('cal-modal-titulo').textContent = 'Agregar Calificación Final';
+    document.getElementById('cal-form-grupo').value = 'Marketing Fest';
+    document.getElementById('cal-form-nombre').value = '';
+    document.getElementById('cal-form-matricula').value = '';
+    document.getElementById('cal-form-cal').value = '';
+    document.getElementById('cal-form-obs').value = '';
+  }
+  document.getElementById('cal-modal-overlay').classList.add('open');
+  lucide.createIcons();
+}
+
+function closeCalModal() {
+  document.getElementById('cal-modal-overlay').classList.remove('open');
+}
+
+async function saveCalificacion() {
+  const id = document.getElementById('cal-edit-id').value;
+  const nombre = document.getElementById('cal-form-nombre').value.trim();
+  const grupo = document.getElementById('cal-form-grupo').value;
+  const matricula = document.getElementById('cal-form-matricula').value.trim();
+  const calRaw = document.getElementById('cal-form-cal').value;
+  const obs = document.getElementById('cal-form-obs').value.trim();
+
+  const errEl = document.getElementById('cal-form-error');
+  if (!nombre) { errEl.textContent = 'El nombre es obligatorio.'; errEl.style.display = 'block'; return; }
+  const cal = parseFloat(calRaw);
+  if (isNaN(cal) || cal < 0 || cal > 10) { errEl.textContent = 'La calificación debe estar entre 0 y 10.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+
+  const payload = { grupo, nombre, matricula: matricula || null, calificacion_final: cal, observaciones: obs || null };
+  let err;
+  if (id) {
+    const res = await db.from('calificaciones_finales').update(payload).eq('id', id);
+    err = res.error;
+  } else {
+    const res = await db.from('calificaciones_finales').insert([payload]);
+    err = res.error;
+  }
+
+  if (err) { errEl.textContent = 'Error: ' + err.message; errEl.style.display = 'block'; return; }
+  closeCalModal();
+  showToast(id ? 'Calificación actualizada.' : 'Calificación guardada.');
+  loadData();
+}
+
+async function deleteCalificacion(id) {
+  const r = calificacionesData.find(x => x.id === id);
+  if (!confirm('¿Eliminar la calificación de ' + (r ? r.nombre : 'este alumno') + '?')) return;
+  const { error } = await db.from('calificaciones_finales').delete().eq('id', id);
+  if (error) { showToast('Error: ' + error.message); return; }
+  showToast('Registro eliminado.');
+  loadData();
+}
+
+function exportCalCSV() {
+  if (!calificacionesData.length) { alert('No hay calificaciones para exportar.'); return; }
+  const cols = ['nombre','matricula','grupo','calificacion_final','observaciones','created_at'];
+  const headers = ['Nombre','Matrícula','Grupo','Calificación Final','Observaciones','Fecha'];
+  const escape = v => { if (v===null||v===undefined) return ''; const s=String(v); return s.includes(',')||s.includes('"')||s.includes('\n') ? `"${s.replace(/"/g,'""')}"` : s; };
+  const rows = calificacionesData.map(r => cols.map(c => escape(r[c])).join(','));
+  const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `calificaciones_finales_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 
 function copyLink(path) {
   const base = window.location.origin;
